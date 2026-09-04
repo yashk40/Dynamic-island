@@ -1,0 +1,1085 @@
+/* ────────────────────────────────────────────────────────────────
+   Dynamic Island for Windows
+   Apple-accurate spring easing, glassmorphism dark pill
+──────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+*:focus,
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+  user-select: none;
+}
+
+/* ─── Easing tokens ─────────────────────────────────────────── */
+/* Authentic Apple Dynamic Island spring easing */
+:root {
+  --apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --apple-duration: 0.5s;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Island Shell ──────────────────────────────────────────── */
+/* GSAP handles all morph animations — no CSS transitions on size/radius */
+.island {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  /* Translucent Dark Glass: ultra-lightweight, 0% GPU lag, background shows through */
+  background: var(--island-bg, rgba(14, 14, 18, 0.78));
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  will-change: width, height, border-radius;
+  isolation: isolate;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Crisp glass border & depth shadow */
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.island::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+
+/* ─── States: Visibility (GSAP handles transitions) ───────── */
+.state {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.state.active {
+  display: flex;
+  pointer-events: auto;
+}
+
+/* ─── COMPACT STATE ───────────────────────────────────────────── */
+.island.compact {
+  width: 126px;
+  height: 37px;
+  border-radius: 20px;
+}
+
+.compact-state {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+/* Authentic iPhone compact media pill (wider when media is playing) */
+.island.compactMedia {
+  width: 204px;
+  height: 37px;
+  border-radius: 999px;
+}
+
+.island.compactMedia .compact-state {
+  padding: 0 10px;
+}
+
+.compact-left,
+.compact-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.compact-icon {
+  width: 14px;
+  height: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: opacity 0.2s;
+}
+
+/* Compact circular album art thumbnail (clean, no fuzzy gradients) */
+.compact-music-art {
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: #18191d;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.compact-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.compact-music-art svg {
+  width: 12px;
+  height: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.expanded-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 13px;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Compact dancing audio equalizer waveform (colors adapt to thumbnail) */
+.compact-wave {
+  display: none;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 16px;
+  padding-bottom: 2px;
+}
+
+.c-bar {
+  width: 2.6px;
+  border-radius: 999px;
+  background: var(--media-accent, #ff2d55);
+  box-shadow: 0 0 6px var(--media-accent-glow, rgba(255, 45, 85, 0.5));
+  transform-origin: bottom;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+.c-bar:nth-child(1) { height: 9px;  animation: c-wave-1 0.75s ease-in-out infinite alternate; }
+.c-bar:nth-child(2) { height: 15px; animation: c-wave-2 0.55s ease-in-out infinite alternate 0.1s; }
+.c-bar:nth-child(3) { height: 12px; animation: c-wave-3 0.8s  ease-in-out infinite alternate 0.25s; }
+.c-bar:nth-child(4) { height: 16px; animation: c-wave-4 0.65s ease-in-out infinite alternate 0.15s; }
+.c-bar:nth-child(5) { height: 10px; animation: c-wave-5 0.7s  ease-in-out infinite alternate 0.3s; }
+
+@keyframes c-wave-1 { 0% { height: 4px; }  100% { height: 12px; } }
+@keyframes c-wave-2 { 0% { height: 15px; } 100% { height: 5px; } }
+@keyframes c-wave-3 { 0% { height: 5px; }  100% { height: 14px; } }
+@keyframes c-wave-4 { 0% { height: 16px; } 100% { height: 4px; } }
+@keyframes c-wave-5 { 0% { height: 4px; }  100% { height: 11px; } }
+
+/* Playing state toggles */
+.island.playing .compact-music-art { display: flex; }
+.island.playing .compact-wave { display: flex; }
+.island.playing .compact-time { display: none; }
+.island.playing .compact-timer-icon { display: none; }
+
+.compact-timer-icon {
+  width: 14px;
+  height: 14px;
+  color: rgba(255, 165, 0, 0.9);
+  display: none;
+}
+
+.compact-timer-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.compact-time {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── EXPANDED BASE ───────────────────────────────────────────── */
+.island.expanded {
+  border-radius: 40px;
+}
+
+.expanded-state {
+  padding: 14px 16px;
+  align-items: flex-start;
+}
+
+/* ─── NOW PLAYING (AUTHENTIC IPHONE DYNAMIC ISLAND) ─────────── */
+.island.music {
+  width: 350px;
+  height: 148px;
+  border-radius: 42px;
+}
+
+.music-expanded {
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+}
+
+.music-content-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 13px 18px 14px 18px;
+  box-sizing: border-box;
+}
+
+/* Top row: Album Art, Track Info, Equalizer */
+.music-top-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+}
+
+.album-art {
+  width: 50px;
+  height: 50px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #1e1e24, #121216);
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.album-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff2d55 0%, #ff375f 50%, #ff9f0a 100%);
+}
+
+.album-art-placeholder svg {
+  width: 26px;
+  height: 26px;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.album-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.music-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.music-title {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.music-artist {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Large Sound Wave Equalizer */
+.sound-wave-large {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+  padding-right: 4px;
+}
+
+.w-bar {
+  width: 3px;
+  border-radius: 999px;
+  background: var(--media-accent, #ff2d55);
+  box-shadow: 0 0 6px var(--media-accent-glow, rgba(255, 45, 85, 0.4));
+  transform-origin: bottom;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+.island.playing .w-bar:nth-child(1) { height: 12px; animation: w-anim-1 0.7s ease-in-out infinite alternate; }
+.island.playing .w-bar:nth-child(2) { height: 18px; animation: w-anim-2 0.55s ease-in-out infinite alternate 0.1s; }
+.island.playing .w-bar:nth-child(3) { height: 8px;  animation: w-anim-3 0.8s ease-in-out infinite alternate 0.25s; }
+.island.playing .w-bar:nth-child(4) { height: 16px; animation: w-anim-4 0.65s ease-in-out infinite alternate 0.15s; }
+.island.playing .w-bar:nth-child(5) { height: 10px; animation: w-anim-5 0.75s ease-in-out infinite alternate 0.3s; }
+
+.island:not(.playing) .w-bar {
+  height: 3px !important;
+  animation: none !important;
+  opacity: 0.4;
+}
+
+@keyframes w-anim-1 { 0% { height: 5px; } 100% { height: 16px; } }
+@keyframes w-anim-2 { 0% { height: 18px; } 100% { height: 6px; } }
+@keyframes w-anim-3 { 0% { height: 4px; } 100% { height: 14px; } }
+@keyframes w-anim-4 { 0% { height: 16px; } 100% { height: 5px; } }
+@keyframes w-anim-5 { 0% { height: 8px; } 100% { height: 18px; } }
+
+/* Middle Scrubber */
+.music-scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.scrub-time {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  font-variant-numeric: tabular-nums;
+  min-width: 46px;
+  white-space: nowrap;
+}
+
+.scrub-time:last-child {
+  text-align: right;
+}
+
+.scrub-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  position: relative;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.scrub-fill {
+  height: 100%;
+  width: 0%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  position: relative;
+  transition: width 0.2s linear;
+}
+
+.scrub-knob {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  opacity: 1;
+  pointer-events: none;
+  transition: transform 0.15s ease;
+}
+
+.scrub-track:hover .scrub-knob {
+  transform: translateY(-50%) scale(1.3);
+}
+
+/* Bottom Controls */
+.music-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.ctrl-secondary-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: color 0.2s, transform 0.15s;
+}
+
+.ctrl-secondary-icon:hover {
+  color: rgba(255, 255, 255, 0.85);
+  transform: scale(1.1);
+}
+
+.ctrl-secondary-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.music-main-btns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ctrl-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ctrl-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
+}
+
+.ctrl-btn:active {
+  transform: scale(0.92);
+}
+
+.seek-btn {
+  width: 30px;
+  height: 30px;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seek-btn svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.15s;
+}
+
+.seek-btn:hover svg {
+  transform: scale(1.08);
+}
+
+.skip-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.skip-btn svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+.play-pause-btn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.play-pause-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.play-pause-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.play-pause-btn .pause-icon {
+  display: none;
+}
+
+.island.playing .play-pause-btn .play-icon {
+  display: none;
+}
+
+.island.playing .play-pause-btn .pause-icon {
+  display: block;
+}
+
+/* ─── BATTERY ─────────────────────────────────────────────────── */
+.island.battery {
+  width: 260px;
+  height: 90px;
+}
+
+.battery-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.battery-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.battery-icon-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.battery-body {
+  width: 36px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.battery-fill {
+  height: 100%;
+  background: #34c759;
+  transition: width 0.6s ease, background 0.6s ease;
+  border-radius: 2px;
+}
+
+.battery-tip {
+  width: 3px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 0 2px 2px 0;
+}
+
+.battery-percent {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.battery-status {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.battery-bar-wrap {
+  width: 100%;
+}
+
+.battery-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.battery-bar-fill {
+  height: 100%;
+  background: #34c759;
+  border-radius: 999px;
+  transition: width 0.8s ease, background 0.6s ease;
+}
+
+/* Charging animation */
+.island.charging .battery-bar-fill {
+  background: linear-gradient(90deg, #34c759, #30d158, #34c759);
+  background-size: 200% 100%;
+  animation: charging-anim 1.5s linear infinite;
+}
+
+@keyframes charging-anim {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: -200% 0%;
+  }
+}
+
+/* Low battery */
+.island.low-battery .battery-fill,
+.island.low-battery .battery-bar-fill {
+  background: #ff3b30;
+}
+
+/* ─── QUICK ACTIONS (CONTROL HUB & LAUNCHER DOCK) ────────────── */
+.island.quick {
+  width: 404px;
+  height: 84px;
+  border-radius: 42px;
+  /* inherits glassmorphism from .island base — no override needed */
+}
+
+.quick-expanded {
+  width: 100%;
+  height: 100%;
+  padding: 6px 14px 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Authentic Top Notch Indicator Pill Handle */
+.notch-handle {
+  width: 26px;
+  height: 3.5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.38);
+  margin: 2px auto 6px auto;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.island.quick:hover .notch-handle {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 6-Item Quick Actions Row */
+.quick-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none !important;
+  transition: transform 0.15s ease;
+}
+
+.quick-tile:active {
+  transform: scale(0.92);
+}
+
+/* Base Apple App Squircle */
+.apple-app-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+}
+
+.apple-app-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.quick-tile:hover .apple-app-icon {
+  transform: translateY(-2.5px) scale(1.08);
+}
+
+/* Specific Squircle Stylings matching the screenshot */
+
+/* 1. YouTube: Pure White Squircle */
+.apple-app-icon.yt-icon {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+.quick-tile:hover .apple-app-icon.yt-icon {
+  box-shadow: 0 6px 18px rgba(255, 0, 0, 0.3), inset 0 1px 1px #ffffff;
+}
+
+/* 2. Snip: Dark Camera Body */
+.apple-app-icon.snip-icon {
+  background: linear-gradient(180deg, #2c2c2f 0%, #171719 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+}
+.quick-tile:hover .apple-app-icon.snip-icon {
+  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
+/* 3. Calc: Charcoal iOS Bevel Body */
+.apple-app-icon.calc-icon {
+  background: linear-gradient(180deg, #28282b 0%, #18181a 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.18);
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+}
+.quick-tile:hover .apple-app-icon.calc-icon {
+  box-shadow: 0 6px 18px rgba(255, 159, 10, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* 4. Files: Pure White Squircle */
+.apple-app-icon.files-icon {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+.quick-tile:hover .apple-app-icon.files-icon {
+  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.35), inset 0 1px 1px #ffffff;
+}
+
+/* 5. Lock: Royal Blue Gradient */
+.apple-app-icon.lock-icon {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+}
+.quick-tile:hover .apple-app-icon.lock-icon {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.55);
+}
+
+/* 6. Power: Crimson Red Gradient */
+.apple-app-icon.power-icon {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+}
+.quick-tile:hover .apple-app-icon.power-icon {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.55);
+}
+
+/* Labels below icons */
+.quick-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: -0.1px;
+  text-align: center;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.quick-tile:hover .quick-label {
+  color: #ffffff;
+}
+
+/* Power Confirmation Panel */
+.power-confirm-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.power-confirm-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.power-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.power-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  outline: none !important;
+}
+
+.power-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.power-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.95;
+}
+
+.power-btn:active {
+  transform: scale(0.95);
+}
+
+.p-shutdown { background: #ef4444; }
+.p-sleep    { background: #f59e0b; }
+.p-restart  { background: #3b82f6; }
+.p-cancel   { background: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.85); }
+
+/* ─── TIMER ───────────────────────────────────────────────────── */
+.island.timer {
+  width: 280px;
+  height: 110px;
+}
+
+.timer-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timer-ring {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+}
+
+.timer-ring-progress {
+  fill: none;
+  stroke: #ff9f0a;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 213.6;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-inner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 0;
+}
+
+/* position timer display inside the ring */
+.timer-content {
+  position: relative;
+}
+
+.timer-inner {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.timer-display {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.timer-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 90px;
+}
+
+.timer-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.timer-btn:active {
+  transform: scale(0.95);
+}
+
+.start-btn {
+  background: #ff9f0a;
+  color: #000;
+}
+
+.reset-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── NOTIFICATION ────────────────────────────────────────────── */
+.island.notification {
+  width: 300px;
+  height: 72px;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.notif-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.notif-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.notif-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* ─── SYSTEM STATS ────────────────────────────────────────────── */
+.island.stats {
+  width: 240px;
+  height: 80px;
+}
+
+.stats-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 30px;
+}
+
+.stat-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s ease;
+}
+
+.cpu-fill {
+  background: linear-gradient(90deg, #bf5af2, #da8fff);
+}
+
+.ram-fill {
+  background: linear-gradient(90deg, #0a84ff, #42a1ff);
+}
+
+.stat-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

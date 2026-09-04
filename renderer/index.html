@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Island</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="island.css" />
+</head>
+<body>
+  <div id="island" class="island compact">
+
+    <!-- ─── COMPACT STATE ─────────────────────────────── -->
+    <div class="state compact-state" id="compact-state">
+      <div class="compact-left" id="compact-left">
+        <div class="compact-music-art" id="compact-music-art">
+          <img id="compact-thumb-img" class="compact-thumb-img" src="" alt="" style="display: none;" />
+          <svg id="compact-music-default-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+        </div>
+        <div class="compact-timer-icon" id="compact-timer-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="compact-right" id="compact-right">
+        <!-- iPhone dancing equalizer bars (5 bars, dynamic thumbnail accent) -->
+        <div class="compact-wave" id="compact-music-wave">
+          <span class="c-bar"></span>
+          <span class="c-bar"></span>
+          <span class="c-bar"></span>
+          <span class="c-bar"></span>
+          <span class="c-bar"></span>
+        </div>
+        <span class="compact-time" id="compact-time">00:00</span>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: NOW PLAYING (IPHONE DYNAMIC ISLAND) ─── -->
+    <div class="state expanded-state music-expanded" id="music-expanded">
+      <div class="music-content-wrap">
+        <!-- Top row: Album Art, Song Info, Dancing Waveform -->
+        <div class="music-top-row">
+          <div class="album-art" id="album-art">
+            <img id="expanded-thumb-img" class="expanded-thumb-img" src="" alt="" style="display: none;" />
+            <div class="album-art-placeholder" id="album-art-placeholder">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+              </svg>
+            </div>
+            <div class="album-shine"></div>
+          </div>
+          <div class="music-info">
+            <div class="music-title" id="music-title">Not Playing</div>
+            <div class="music-artist" id="music-artist">Apple Music</div>
+          </div>
+          <!-- iPhone Large Audio Equalizer Waveform -->
+          <div class="sound-wave-large" id="sound-wave-large">
+            <span class="w-bar"></span>
+            <span class="w-bar"></span>
+            <span class="w-bar"></span>
+            <span class="w-bar"></span>
+            <span class="w-bar"></span>
+          </div>
+        </div>
+
+        <!-- Middle row: Scrubber Slider with timestamps -->
+        <div class="music-scrubber-row">
+          <span class="scrub-time" id="music-time-current">1:18</span>
+          <div class="scrub-track" id="scrub-track" onclick="seekScrubber(event)">
+            <div class="scrub-fill" id="progress-fill">
+              <div class="scrub-knob" id="scrub-knob"></div>
+            </div>
+          </div>
+          <span class="scrub-time" id="music-time-total">-2:42</span>
+        </div>
+
+        <!-- Bottom row: AirPlay, Playback Controls (Previous, Rewind, Play/Pause, Forward, Next) -->
+        <div class="music-controls-row">
+          <div class="ctrl-secondary-icon airplay-icon" title="AirPlay">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 22h12l-6-6zM21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4v-2H3V5h18v12h-4v2h4c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+          </div>
+
+          <div class="music-main-btns">
+            <!-- Rewind 10s -->
+            <button class="ctrl-btn seek-btn" id="rewind-btn" onclick="mediaControl('rewind')" title="Rewind 10s">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 10A8 8 0 1 1 12 20a8 8 0 0 1-5.66-2.34" />
+                <polyline points="4.5 5 4.5 10 9.5 10" />
+                <text x="12" y="14.2" font-size="6.5" font-weight="700" fill="currentColor" stroke="none" text-anchor="middle" font-family="'Inter', sans-serif">10</text>
+              </svg>
+            </button>
+
+            <!-- Previous Track -->
+            <button class="ctrl-btn skip-btn" id="prev-btn" onclick="mediaControl('prev')" title="Previous Track">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+              </svg>
+            </button>
+
+            <!-- Play / Pause -->
+            <button class="ctrl-btn play-pause-btn" id="play-pause-btn" onclick="mediaControl('play')" title="Play / Pause">
+              <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5.14v14l11-7-11-7z"/>
+              </svg>
+              <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
+            </button>
+
+            <!-- Next Track -->
+            <button class="ctrl-btn skip-btn" id="next-btn" onclick="mediaControl('next')" title="Next Track">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 18l8.5-6L6 6v12zM16 6h2v12h-2z"/>
+              </svg>
+            </button>
+
+            <!-- Forward 10s -->
+            <button class="ctrl-btn seek-btn" id="forward-btn" onclick="mediaControl('forward')" title="Skip 10s Forward">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 10A8 8 0 1 0 12 20a8 8 0 0 0 5.66-2.34" />
+                <polyline points="19.5 5 19.5 10 14.5 10" />
+                <text x="12" y="14.2" font-size="6.5" font-weight="700" fill="currentColor" stroke="none" text-anchor="middle" font-family="'Inter', sans-serif">10</text>
+              </svg>
+            </button>
+          </div>
+
+          <div class="ctrl-secondary-icon speaker-icon" title="Audio Output">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: BATTERY ─────────────────────────── -->
+    <div class="state expanded-state battery-expanded" id="battery-expanded">
+      <div class="battery-content">
+        <div class="battery-header">
+          <div class="battery-icon-wrap" id="battery-icon-wrap">
+            <div class="battery-body">
+              <div class="battery-fill" id="battery-fill"></div>
+            </div>
+            <div class="battery-tip"></div>
+          </div>
+          <div class="battery-info">
+            <div class="battery-percent" id="battery-percent-text">—%</div>
+            <div class="battery-status" id="battery-status-text">Checking…</div>
+          </div>
+        </div>
+        <div class="battery-bar-wrap">
+          <div class="battery-bar">
+            <div class="battery-bar-fill" id="battery-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: QUICK ACTIONS (CONTROL HUB) ───────── -->
+    <div class="state expanded-state quick-expanded" id="quick-expanded">
+      <!-- Notch Pill Indicator Bar -->
+      <div class="notch-handle"></div>
+
+      <!-- Main Actions Row (6 iOS Squircle App Shortcuts) -->
+      <div class="quick-grid" id="quick-main-grid">
+        <!-- 1. YouTube (White Squircle with Red Play Badge) -->
+        <button class="quick-tile" onclick="triggerQuickAction('youtube')" title="YouTube">
+          <div class="apple-app-icon yt-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <rect x="5" y="8" width="22" height="16" rx="4.8" fill="#FF0000"/>
+              <polygon points="13.5,12 19.5,16 13.5,20" fill="#FFFFFF"/>
+            </svg>
+          </div>
+          <span class="quick-label">YouTube</span>
+        </button>
+
+        <!-- 2. Snip (Dark Squircle with Camera Lens Aperture) -->
+        <button class="quick-tile" onclick="triggerQuickAction('screenshot')" title="Snip">
+          <div class="apple-app-icon snip-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <defs>
+                <radialGradient id="snip-lens-blue" cx="42%" cy="40%" r="58%">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="35%" stop-color="#0284c7"/>
+                  <stop offset="70%" stop-color="#034b94"/>
+                  <stop offset="100%" stop-color="#081b33"/>
+                </radialGradient>
+                <linearGradient id="snip-spec" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <circle cx="16" cy="16" r="12" fill="#242426" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.8"/>
+              <circle cx="16" cy="16" r="10" fill="#141416" stroke="#323236" stroke-width="0.8"/>
+              <circle cx="16" cy="16" r="7.5" fill="url(#snip-lens-blue)"/>
+              <ellipse cx="13.8" cy="13.8" rx="2" ry="1.1" transform="rotate(-40 13.8 13.8)" fill="url(#snip-spec)"/>
+              <ellipse cx="18" cy="18" rx="1.2" ry="0.6" transform="rotate(-40 18 18)" fill="#38bdf8" fill-opacity="0.6"/>
+              <circle cx="21.5" cy="10.5" r="1" fill="#38bdf8"/>
+            </svg>
+          </div>
+          <span class="quick-label">Snip</span>
+        </button>
+
+        <!-- 3. Calc (iOS Calculator 2x2 Grid) -->
+        <button class="quick-tile" onclick="triggerQuickAction('calc')" title="Calc">
+          <div class="apple-app-icon calc-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <!-- Top-Left: Grey + button -->
+              <rect x="4.5" y="4.5" width="10.5" height="10.5" rx="3.6" fill="#48484a"/>
+              <line x1="9.75" y1="7.2" x2="9.75" y2="12.3" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="7.2" y1="9.75" x2="12.3" y2="9.75" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+
+              <!-- Top-Right: Orange - button -->
+              <rect x="17" y="4.5" width="10.5" height="10.5" rx="3.6" fill="#ff9f0a"/>
+              <line x1="19.7" y1="9.75" x2="24.8" y2="9.75" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+
+              <!-- Bottom-Left: Grey × button -->
+              <rect x="4.5" y="17" width="10.5" height="10.5" rx="3.6" fill="#48484a"/>
+              <line x1="7.6" y1="20.1" x2="11.9" y2="24.4" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="11.9" y1="20.1" x2="7.6" y2="24.4" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+
+              <!-- Bottom-Right: Orange = button -->
+              <rect x="17" y="17" width="10.5" height="10.5" rx="3.6" fill="#ff9f0a"/>
+              <line x1="19.7" y1="21" x2="24.8" y2="21" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="19.7" y1="23.5" x2="24.8" y2="23.5" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="quick-label">Calc</span>
+        </button>
+
+        <!-- 4. Files (White Squircle with macOS Azure Folder) -->
+        <button class="quick-tile" onclick="triggerQuickAction('files')" title="Files">
+          <div class="apple-app-icon files-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <defs>
+                <linearGradient id="folder-front-grad" x1="0" y1="12" x2="0" y2="25" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="100%" stop-color="#0284c7"/>
+                </linearGradient>
+              </defs>
+              <!-- Folder Back Tab -->
+              <path d="M5.5 10c0-.8.6-1.5 1.5-1.5h5c.6 0 1.2.3 1.5.8l.8 1.2c.3.5.9.8 1.5.8h9.7c.8 0 1.5.7 1.5 1.5v3H5.5v-5.8z" fill="#0284c7"/>
+              <!-- Folder Front Flap -->
+              <rect x="4.5" y="12" width="23" height="13" rx="3.2" fill="url(#folder-front-grad)"/>
+            </svg>
+          </div>
+          <span class="quick-label">Files</span>
+        </button>
+
+        <!-- 5. Lock (Royal Blue Gradient with Solid White Padlock) -->
+        <button class="quick-tile" onclick="triggerQuickAction('lock')" title="Lock">
+          <div class="apple-app-icon lock-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M11 13V9.5a5 5 0 0 1 10 0V13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <rect x="8" y="12.5" width="16" height="12" rx="3.5" fill="#ffffff"/>
+              <circle cx="16" cy="17.2" r="1.5" fill="#1d4ed8"/>
+              <path d="M15.3 17.8h1.4l.4 2.8h-2.2l.4-2.8z" fill="#1d4ed8"/>
+            </svg>
+          </div>
+          <span class="quick-label">Lock</span>
+        </button>
+
+        <!-- 6. Power (Crimson Red Gradient with Solid White Power Standby) -->
+        <button class="quick-tile power-tile" onclick="togglePowerConfirm(true)" title="Power">
+          <div class="apple-app-icon power-icon">
+            <svg viewBox="0 0 32 32" fill="none">
+              <line x1="16" y1="7.5" x2="16" y2="15.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M10.2 11.2a7.8 7.8 0 1 0 11.6 0" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span class="quick-label">Power</span>
+        </button>
+      </div>
+
+      <!-- Power Confirmation Panel (Sleek In-Island Sub-view) -->
+      <div class="power-confirm-panel" id="power-confirm-panel" style="display: none;">
+        <div class="power-confirm-title">Power Options</div>
+        <div class="power-actions-row">
+          <button class="power-btn p-shutdown" onclick="triggerQuickAction('shutdown')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
+            Shut Down
+          </button>
+          <button class="power-btn p-sleep" onclick="triggerQuickAction('sleep')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.3 2a10 10 0 0 0-1.9 19.8 10 10 0 0 0 11.5-11.5c-6 0-9.6-3.6-9.6-8.3z"/></svg>
+            Sleep
+          </button>
+          <button class="power-btn p-restart" onclick="triggerQuickAction('restart')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            Restart
+          </button>
+          <button class="power-btn p-cancel" onclick="togglePowerConfirm(false)">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: TIMER ───────────────────────────── -->
+    <div class="state expanded-state timer-expanded" id="timer-expanded">
+      <div class="timer-content">
+        <svg class="timer-ring" viewBox="0 0 80 80">
+          <circle class="timer-ring-bg" cx="40" cy="40" r="34"/>
+          <circle class="timer-ring-progress" id="timer-ring-progress" cx="40" cy="40" r="34"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-display" id="timer-display">00:00</div>
+          <div class="timer-label">Timer</div>
+        </div>
+        <div class="timer-actions">
+          <button class="timer-btn start-btn" id="timer-start-btn" onclick="timerControl('toggle')">Start</button>
+          <button class="timer-btn reset-btn" onclick="timerControl('reset')">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: NOTIFICATION ────────────────────── -->
+    <div class="state expanded-state notif-expanded" id="notif-expanded">
+      <div class="notif-content">
+        <div class="notif-icon" id="notif-icon">🔔</div>
+        <div class="notif-text">
+          <div class="notif-title" id="notif-title">Notification</div>
+          <div class="notif-body" id="notif-body">You have a new alert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: SYSTEM STATS ────────────────────── -->
+    <div class="state expanded-state stats-expanded" id="stats-expanded">
+      <div class="stats-content">
+        <div class="stat-item">
+          <div class="stat-label">CPU</div>
+          <div class="stat-bar"><div class="stat-fill cpu-fill" id="cpu-fill"></div></div>
+          <div class="stat-value" id="cpu-value">0%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">RAM</div>
+          <div class="stat-bar"><div class="stat-fill ram-fill" id="ram-fill"></div></div>
+          <div class="stat-value" id="ram-value">0%</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../node_modules/gsap/dist/gsap.min.js"></script>
+  <script>if (typeof gsap === 'undefined') document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\\/script>')</script>
+  <script src="island.js"></script>
+</body>
+</html>

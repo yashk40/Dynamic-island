@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dynamic Island - Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --accent: #0a84ff;
+  --surface: rgba(255,255,255,0.05);
+  --surface-h: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.1);
+  --muted: rgba(255,255,255,0.45);
+}
+html, body {
+  width: 100%; height: 100%;
+  background: transparent;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #fff;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.app {
+  width: 100%; height: 100%;
+  background: rgba(11,11,15,0.93);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+/* Title bar */
+.titlebar {
+  -webkit-app-region: drag;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px 11px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tl { display: flex; align-items: center; gap: 10px; }
+.app-icon {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg,#1c1c1e,#2c2c2e);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.app-icon svg { width: 15px; height: 15px; fill: var(--accent); }
+.tb-title { font-size: 13px; font-weight: 600; letter-spacing: -0.2px; }
+.tb-sub   { font-size: 11px; color: var(--muted); }
+.x-btn {
+  -webkit-app-region: no-drag;
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.x-btn:hover { background: rgba(255,59,48,0.25); color: #ff3b30; }
+.x-btn svg { width: 12px; height: 12px; }
+
+/* Content scroll */
+.content {
+  flex: 1; overflow-y: auto;
+  padding: 14px 16px 18px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 99px; }
+
+/* Preview */
+.preview-area {
+  width: 100%; height: 58px; border-radius: 12px;
+  background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); position: relative; overflow: hidden;
+}
+.preview-pill {
+  position: relative; z-index: 1;
+  width: 96px; height: 26px; border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s ease;
+}
+.preview-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.65); }
+.plabel { font-size: 10.5px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; text-align: center; margin-bottom: 5px; }
+
+/* Sections */
+.sh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.si { width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+.si svg { width: 13px; height: 13px; fill: currentColor; }
+.stitle { font-size: 12px; font-weight: 600; }
+
+/* Sliders */
+.sw {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 12px 10px; background: var(--surface);
+  border-radius: 10px; border: 1px solid var(--border); margin-bottom: 2px;
+}
+.sw-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.sw-name { font-size: 12.5px; font-weight: 500; }
+.sw-val { font-size: 12px; font-weight: 600; color: var(--accent); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] {
+  -webkit-appearance: none; width: 100%; height: 4px;
+  border-radius: 999px; outline: none; cursor: pointer;
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct,50%), rgba(255,255,255,0.12) var(--pct,50%));
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.5); cursor: pointer;
+  transition: transform 0.12s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
+
+/* Colors */
+.color-box {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 10px 12px; background: var(--surface);
+  border-radius: 10px; border: 1px solid var(--border);
+}
+.cb-label { font-size: 12.5px; font-weight: 500; }
+.swatches { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.sw2 {
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s; position: relative;
+}
+.sw2:hover { transform: scale(1.15); }
+.sw2.on { border-color: rgba(255,255,255,0.9); transform: scale(1.15); }
+.sw2.on::after {
+  content: "✓"; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 700;
+}
+.custom-sw {
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+  border: 2px dashed rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 16px;
+  transition: border-color 0.15s; position: relative; overflow: hidden;
+}
+.custom-sw:hover { border-color: rgba(255,255,255,0.6); }
+.custom-sw input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+/* Themes */
+.themes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tbtn {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 9px 8px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s; color: #fff;
+}
+.tbtn:hover { background: var(--surface-h); }
+.tbtn.on { border-color: var(--accent); background: rgba(10,132,255,0.1); }
+.tprev { width: 52px; height: 14px; border-radius: 7px; border: 0.5px solid rgba(255,255,255,0.15); }
+.tname { font-size: 11px; font-weight: 500; }
+
+/* Icon accent colors */
+.ic-blue   { background: rgba(10,132,255,0.2);  color: #0a84ff; }
+.ic-purple { background: rgba(191,90,242,0.2);  color: #bf5af2; }
+.ic-green  { background: rgba(48,209,88,0.2);   color: #34c759; }
+.ic-orange { background: rgba(255,159,10,0.2);  color: #ff9f0a; }
+.ic-grey   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); }
+
+/* Pinned Footer & Actions */
+.footer {
+  flex-shrink: 0;
+  padding: 11px 16px 13px;
+  background: rgba(14, 14, 20, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 2px;
+}
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 7px rgba(52, 199, 89, 0.5);
+  transition: all 0.25s ease;
+}
+.status-dot.dirty {
+  background: #ff9f0a;
+  box-shadow: 0 0 7px rgba(255, 159, 10, 0.6);
+}
+.actions-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+}
+.sbtn {
+  flex: 1.45;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0a84ff, #0066d6);
+  color: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.sbtn:hover {
+  background: linear-gradient(135deg, #2191ff, #0a75e3);
+  box-shadow: 0 6px 18px rgba(10, 132, 255, 0.45);
+  transform: translateY(-1px);
+}
+.sbtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.25);
+}
+.sbtn.saved {
+  background: linear-gradient(135deg, #34c759, #28a745) !important;
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.45) !important;
+}
+.rbtn {
+  flex: 1;
+  height: 38px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.rbtn:hover {
+  background: rgba(255, 59, 48, 0.15);
+  border-color: rgba(255, 59, 48, 0.35);
+  color: #ff453a;
+}
+.rbtn:active {
+  transform: translateY(1px);
+}
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+/* Toast popup */
+.toast {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-15px);
+  background: rgba(24, 24, 32, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 14px rgba(10, 132, 255, 0.25);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 7px 14px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 6px #34c759;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Titlebar -->
+  <div class="titlebar">
+    <div class="tl">
+      <div class="app-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+      </div>
+      <div>
+        <div class="tb-title">Dynamic Island</div>
+        <div class="tb-sub">Appearance Settings</div>
+      </div>
+    </div>
+    <div class="x-btn" onclick="window.settingsBridge.close()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Live Preview -->
+    <div>
+      <div class="plabel">Live Preview</div>
+      <div class="preview-area">
+        <div class="preview-pill" id="preview-pill">
+          <div class="preview-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preset Themes -->
+    <div>
+      <div class="sh">
+        <div class="si ic-orange">
+          <svg viewBox="0 0 24 24"><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.41-1.42-1.42 1.42 1.41 1.41L3 18.25V21h2.75l9.58-9.58 1.41 1.41 1.42-1.42-1.42-1.41 3.12-3.12c.4-.4.4-1.03.05-1.25z"/></svg>
+        </div>
+        <div class="stitle">Preset Themes</div>
+      </div>
+      <div class="themes">
+        <button class="tbtn" id="t-void"   onclick="applyTheme('void')">
+          <div class="tprev" style="background:#080808;"></div>
+          <div class="tname">Void Black</div>
+        </button>
+        <button class="tbtn" id="t-glass"  onclick="applyTheme('glass')">
+          <div class="tprev" style="background:rgba(10,10,12,0.65);"></div>
+          <div class="tname">Glass</div>
+        </button>
+        <button class="tbtn" id="t-smoke"  onclick="applyTheme('smoke')">
+          <div class="tprev" style="background:rgba(28,28,36,0.8);"></div>
+          <div class="tname">Smoke</div>
+        </button>
+        <button class="tbtn" id="t-amoled" onclick="applyTheme('amoled')">
+          <div class="tprev" style="background:#000;"></div>
+          <div class="tname">AMOLED</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Transparency & Blur -->
+    <div>
+      <div class="sh">
+        <div class="si ic-blue">
+          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        </div>
+        <div class="stitle">Transparency &amp; Blur</div>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Background Opacity</div><div class="sw-val" id="v-opacity">72%</div></div>
+        <input type="range" id="s-opacity" min="0" max="100" value="72" oninput="sl('opacity',this)"/>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Blur Amount</div><div class="sw-val" id="v-blur">32px</div></div>
+        <input type="range" id="s-blur" min="0" max="60" value="32" oninput="sl('blur',this)"/>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Saturation</div><div class="sw-val" id="v-saturation">180%</div></div>
+        <input type="range" id="s-saturation" min="80" max="280" value="180" oninput="sl('saturation',this)"/>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Brightness</div><div class="sw-val" id="v-brightness">85%</div></div>
+        <input type="range" id="s-brightness" min="30" max="120" value="85" oninput="sl('brightness',this)"/>
+      </div>
+    </div>
+
+    <!-- Tint Color -->
+    <div>
+      <div class="sh">
+        <div class="si ic-purple">
+          <svg viewBox="0 0 24 24"><path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67C14.5 20.88 13.38 22 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65C11.73 16.12 12.85 15 14.23 15H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/></svg>
+        </div>
+        <div class="stitle">Tint Color</div>
+      </div>
+      <div class="color-box">
+        <div class="cb-label">Background Tint</div>
+        <div class="swatches" id="tint-row">
+          <div class="sw2 on" data-t="0,0,0"    style="background:#000;"    onclick="pickTint(this,'0,0,0')"></div>
+          <div class="sw2"    data-t="10,10,12" style="background:#0a0a0c;" onclick="pickTint(this,'10,10,12')"></div>
+          <div class="sw2"    data-t="20,20,30" style="background:#14141e;" onclick="pickTint(this,'20,20,30')"></div>
+          <div class="sw2"    data-t="0,20,40"  style="background:#001428;" onclick="pickTint(this,'0,20,40')"></div>
+          <div class="sw2"    data-t="30,0,50"  style="background:#1e0032;" onclick="pickTint(this,'30,0,50')"></div>
+          <div class="sw2"    data-t="50,10,0"  style="background:#320a00;" onclick="pickTint(this,'50,10,0')"></div>
+          <div class="sw2"    data-t="0,40,20"  style="background:#002814;" onclick="pickTint(this,'0,40,20')"></div>
+          <div class="custom-sw" title="Custom color">
+            +<input type="color" id="custom-tint" oninput="customTint(this.value)"/>
+          </div>
+        </div>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Tint Intensity</div><div class="sw-val" id="v-tintOpacity">0%</div></div>
+        <input type="range" id="s-tintOpacity" min="0" max="60" value="0" oninput="sl('tintOpacity',this)"/>
+      </div>
+    </div>
+
+    <!-- Border & Shadow -->
+    <div>
+      <div class="sh">
+        <div class="si ic-green">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+        </div>
+        <div class="stitle">Border &amp; Shadow</div>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Border Opacity</div><div class="sw-val" id="v-border">12%</div></div>
+        <input type="range" id="s-border" min="0" max="100" value="12" oninput="sl('border',this)"/>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Shadow Intensity</div><div class="sw-val" id="v-shadow">60%</div></div>
+        <input type="range" id="s-shadow" min="0" max="100" value="60" oninput="sl('shadow',this)"/>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Inner Glow</div><div class="sw-val" id="v-glow">10%</div></div>
+        <input type="range" id="s-glow" min="0" max="40" value="10" oninput="sl('glow',this)"/>
+      </div>
+    </div>
+
+    <!-- Misc -->
+    <div>
+      <div class="sh">
+        <div class="si ic-grey">
+          <svg viewBox="0 0 24 24"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97 19.54 16.3 17.18 19.07 13.92 20.15 13.35 20.34 13 20.88 13 21.48V21.48C13 22.37 13.84 23.03 14.69 22.77 19.64 21.2 22.5 16.07 21.3 11.07 20.34 6.8 16.56 3.66 12.58 2.04L13 2.05ZM11 2.06C6.58 2.7 3.24 6.57 3.02 11.1L1.02 11.09C1.28 5.41 5.85 1 11 .05V2.06ZM11 22C8.79 22 6.79 21.08 5.34 19.59L3.92 21.01C5.76 22.9 8.26 24 11 24V22ZM2.99 13H1C1.17 15.35 2.08 17.5 3.56 19.16L4.98 17.74C3.91 16.47 3.17 14.82 2.99 13Z"/></svg>
+        </div>
+        <div class="stitle">Behaviour</div>
+      </div>
+      <div class="sw">
+        <div class="sw-h"><div class="sw-name">Auto-collapse delay</div><div class="sw-val" id="v-collapse">2s</div></div>
+        <input type="range" id="s-collapse" min="1" max="10" value="2" oninput="sl('collapse',this)"/>
+      </div>
+    </div>
+
+  </div><!-- .content -->
+
+  <!-- Pinned Action Footer -->
+  <div class="footer">
+    <div class="status-bar">
+      <div class="status-left">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">All changes saved</span>
+      </div>
+    </div>
+    <div class="actions-row">
+      <button class="rbtn" id="btn-reset" onclick="resetSettings()" title="Reset to defaults">
+        <svg viewBox="0 0 24 24" class="btn-icon">
+          <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+        </svg>
+        <span>Reset</span>
+      </button>
+
+      <button class="sbtn" id="btn-save" onclick="saveSettings()" title="Save customized appearance">
+        <svg viewBox="0 0 24 24" class="btn-icon" id="save-icon">
+          <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+        </svg>
+        <span id="save-btn-text">Save Changes</span>
+      </button>
+    </div>
+  </div><!-- .footer -->
+
+  <!-- Floating Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast-dot"></div>
+    <span id="toast-msg">Settings saved successfully!</span>
+  </div>
+</div><!-- .app -->
+
+<script>
+var bridge = window.settingsBridge;
+
+var S = { opacity:65, blur:24, saturation:180, brightness:88, tint:'10,10,12', tintOpacity:0, border:12, shadow:50, glow:12, collapse:1.5 };
+
+var THEMES = {
+  void:  { opacity:95, blur:0,  saturation:100, brightness:100, tint:'0,0,0',    tintOpacity:0,  border:0,  shadow:85, glow:3,  collapse:1.5 },
+  glass: { opacity:65, blur:24, saturation:180, brightness:88,  tint:'10,10,12', tintOpacity:0,  border:12, shadow:50, glow:12, collapse:1.5 },
+  smoke: { opacity:75, blur:20, saturation:140, brightness:90,  tint:'20,20,30', tintOpacity:8,  border:8,  shadow:55, glow:7,  collapse:1.5 },
+  amoled:{ opacity:100,blur:0,  saturation:100, brightness:100, tint:'0,0,0',    tintOpacity:0,  border:0,  shadow:95, glow:0,  collapse:1.5 },
+};
+
+var FMT = {
+  opacity:     function(v){ return v+'%'; },
+  blur:        function(v){ return v+'px'; },
+  saturation:  function(v){ return v+'%'; },
+  brightness:  function(v){ return v+'%'; },
+  tintOpacity: function(v){ return v+'%'; },
+  border:      function(v){ return v+'%'; },
+  shadow:      function(v){ return v+'%'; },
+  glow:        function(v){ return v+'%'; },
+  collapse:    function(v){ return v+'s'; },
+};
+
+var isDirty = false;
+var toastTimer = null;
+
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  var toastMsg = document.getElementById('toast-msg');
+  if (!toast) return;
+  if (toastMsg) toastMsg.textContent = msg;
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() {
+    toast.classList.remove('show');
+  }, 2200);
+}
+
+function markDirty() {
+  isDirty = true;
+  var dot = document.getElementById('status-dot');
+  var txt = document.getElementById('status-text');
+  if (dot) dot.classList.add('dirty');
+  if (txt) txt.textContent = 'Unsaved changes';
+  var btn = document.getElementById('btn-save');
+  if (btn) {
+    btn.classList.remove('saved');
+    var btnTxt = document.getElementById('save-btn-text');
+    if (btnTxt) btnTxt.textContent = 'Save Changes';
+  }
+}
+
+function markSaved() {
+  isDirty = false;
+  var dot = document.getElementById('status-dot');
+  var txt = document.getElementById('status-text');
+  if (dot) dot.classList.remove('dirty');
+  if (txt) txt.textContent = 'All changes saved';
+}
+
+function track(el) {
+  var pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
+}
+
+document.querySelectorAll('input[type="range"]').forEach(track);
+
+function sl(key, el) {
+  var v = parseFloat(el.value);
+  S[key] = v;
+  var lbl = document.getElementById('v-' + key);
+  if (lbl && FMT[key]) lbl.textContent = FMT[key](v);
+  track(el);
+  markDirty();
+  preview(); push();
+}
+
+function pickTint(el, tint) {
+  document.querySelectorAll('#tint-row .sw2').forEach(function(s){ s.classList.remove('on'); });
+  el.classList.add('on');
+  S.tint = tint;
+  markDirty();
+  preview(); push();
+}
+
+function customTint(hex) {
+  var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  document.querySelectorAll('#tint-row .sw2').forEach(function(s){ s.classList.remove('on'); });
+  S.tint = r+','+g+','+b;
+  markDirty();
+  preview(); push();
+}
+
+function preview() {
+  var pill = document.getElementById('preview-pill');
+  if (!pill) return;
+  var baseA = (S.opacity/100).toFixed(2);
+  var tintA  = (S.tintOpacity/100).toFixed(2);
+  var bg = parseFloat(tintA) > 0
+    ? 'rgba('+S.tint+','+Math.max(parseFloat(baseA),parseFloat(tintA))+')'
+    : 'rgba(12,12,16,'+baseA+')';
+  pill.style.background = bg;
+  var bf = 'blur('+S.blur+'px) saturate('+S.saturation+'%) brightness('+S.brightness+'%)';
+  pill.style.backdropFilter = bf;
+  pill.style.webkitBackdropFilter = bf;
+  pill.style.border = '0.5px solid rgba(255,255,255,'+(S.border/100).toFixed(2)+')';
+  pill.style.boxShadow = '0 8px 32px rgba(0,0,0,'+(S.shadow/100).toFixed(2)+'), inset 0 1px 0 rgba(255,255,255,'+(S.glow/100).toFixed(2)+')';
+}
+
+function push() {
+  if (bridge && bridge.applySettings) bridge.applySettings(JSON.parse(JSON.stringify(S)));
+}
+
+function setSlider(key, val) {
+  var el = document.getElementById('s-' + key);
+  if (el) { el.value = val; track(el); }
+  var lbl = document.getElementById('v-' + key);
+  if (lbl && FMT[key]) lbl.textContent = FMT[key](val);
+}
+
+function applyTheme(name) {
+  document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
+  var btn = document.getElementById('t-' + name);
+  if (btn) btn.classList.add('on');
+  var t = THEMES[name]; if (!t) return;
+  Object.assign(S, t);
+  ['opacity','blur','saturation','brightness','tintOpacity','border','shadow','glow','collapse'].forEach(function(k){
+    setSlider(k, S[k]);
+  });
+  document.querySelectorAll('#tint-row .sw2').forEach(function(s){
+    s.classList.toggle('on', s.dataset.t === t.tint);
+  });
+  markDirty();
+  preview(); push();
+}
+
+function saveSettings() {
+  var cleanSettings = JSON.parse(JSON.stringify(S));
+
+  // 1. Save to local storage for instant renderer reload persistence
+  try {
+    localStorage.setItem('dynamic_island_settings', JSON.stringify(cleanSettings));
+  } catch (e) {
+    console.error('LocalStorage write failed:', e);
+  }
+
+  // 2. Persist to file via IPC
+  if (bridge && bridge.saveSettings) {
+    bridge.saveSettings(cleanSettings);
+  } else if (bridge && bridge.applySettings) {
+    bridge.applySettings(cleanSettings);
+  }
+
+  // 3. Update Save Button UI
+  var btn = document.getElementById('btn-save');
+  var btnTxt = document.getElementById('save-btn-text');
+  if (btn) {
+    btn.classList.add('saved');
+    if (btnTxt) btnTxt.textContent = 'Saved!';
+  }
+
+  markSaved();
+  showToast('Customizations saved successfully!');
+
+  setTimeout(function() {
+    if (btn && !isDirty) {
+      btn.classList.remove('saved');
+      if (btnTxt) btnTxt.textContent = 'Save Changes';
+    }
+  }, 1800);
+}
+
+function resetSettings() {
+  applyTheme('glass');
+  markDirty();
+  showToast('Reset to defaults. Click "Save Changes" to keep.');
+}
+
+// Initial load
+function initSettings() {
+  try {
+    var cached = localStorage.getItem('dynamic_island_settings');
+    if (cached) {
+      Object.assign(S, JSON.parse(cached));
+    }
+  } catch (e) {}
+
+  function render(saved) {
+    if (saved) Object.assign(S, saved);
+    ['opacity','blur','saturation','brightness','tintOpacity','border','shadow','glow','collapse'].forEach(function(k){
+      if (S[k] !== undefined) setSlider(k, S[k]);
+    });
+
+    // Check theme match
+    var activeTheme = null;
+    Object.keys(THEMES).forEach(function(name) {
+      var t = THEMES[name];
+      var match = ['opacity','blur','saturation','brightness','tintOpacity','border','shadow','glow'].every(function(k){
+        return S[k] === t[k];
+      }) && S.tint === t.tint;
+      if (match) activeTheme = name;
+    });
+
+    document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
+    if (activeTheme) {
+      var tb = document.getElementById('t-' + activeTheme);
+      if (tb) tb.classList.add('on');
+    }
+
+    // Swatch match
+    var matchedSwatch = false;
+    document.querySelectorAll('#tint-row .sw2').forEach(function(s){
+      var isCurrent = s.dataset.t === S.tint;
+      s.classList.toggle('on', isCurrent);
+      if (isCurrent) matchedSwatch = true;
+    });
+
+    if (!matchedSwatch && S.tint) {
+      try {
+        var rgb = S.tint.split(',').map(function(n){ return parseInt(n.trim(),10); });
+        if (rgb.length === 3) {
+          var hex = '#' + rgb.map(function(x){ var h = x.toString(16); return h.length === 1 ? '0' + h : h; }).join('');
+          var customInput = document.getElementById('custom-tint');
+          if (customInput) customInput.value = hex;
+        }
+      } catch (e) {}
+    }
+
+    preview();
+    markSaved();
+  }
+
+  if (bridge && bridge.getSettings) {
+    bridge.getSettings().then(function(saved) {
+      render(saved);
+    }).catch(function() {
+      render(S);
+    });
+  } else {
+    render(S);
+  }
+}
+
+initSettings();
+</script>
+</body>
+</html>
