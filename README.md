@@ -1,7 +1,7 @@
 # 🏝️ Dynamic Island for Windows
 
 <p align="center">
-  <img src="assets/tray-icon.png" width="96" height="96" alt="Dynamic Island Icon" />
+  <img src="assets/logo.png" width="160" height="160" alt="Dynamic Island Logo" style="border-radius: 50%;" />
 </p>
 
 <p align="center">

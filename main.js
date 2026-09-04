@@ -130,6 +130,7 @@ function createIslandWindow() {
     backgroundColor: null, // Fully transparent window — required for backdrop-filter glassmorphism
     alwaysOnTop: true,
     skipTaskbar: true,
+    icon: path.join(__dirname, 'assets', 'logo.png'),
     resizable: false,
     movable: false,
     hasShadow: false,
@@ -203,6 +204,7 @@ function createSettingsWindow() {
     resizable: false,
     movable: true,
     skipTaskbar: true,
+    icon: path.join(__dirname, 'assets', 'logo.png'),
     roundedCorners: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
