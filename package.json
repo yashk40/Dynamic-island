@@ -2,6 +2,19 @@
   "name": "dynamic-island-windows",
   "version": "1.0.0",
   "description": "Dynamic Island for Windows — iPhone-style live activities",
+  "keywords": [
+    "dynamic-island",
+    "windows11",
+    "windows10",
+    "electron",
+    "glassmorphism",
+    "widgets",
+    "desktop-customization",
+    "media-player",
+    "spotify",
+    "system-monitor",
+    "gsap"
+  ],
   "main": "main.js",
   "scripts": {
     "start": "electron .",

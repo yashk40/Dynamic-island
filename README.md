@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT" />
 </p>
 
+<p align="center">
+  <code>#dynamic-island</code> • <code>#windows11</code> • <code>#electron</code> • <code>#glassmorphism</code> • <code>#desktop-widget</code> • <code>#media-controls</code> • <code>#system-monitor</code>
+</p>
+
 ---
 
 ## ✨ Overview
@@ -173,6 +177,22 @@ Contributions, feature suggestions, and bug reports are welcome!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
 4. Push to the Branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
+
+---
+
+## 🏷️ Tags & Topics
+
+| Category | Tags / Hashtags |
+| :--- | :--- |
+| **Experience** | `#dynamic-island` `#dynamic-island-windows` `#ios-on-windows` `#live-activities` `#island` |
+| **Platform** | `#windows-11` `#windows-10` `#windows-customization` `#desktop-app` `#desktop-widget` |
+| **Features** | `#media-player` `#spotify-widget` `#now-playing` `#battery-monitor` `#quick-actions` `#stopwatch` |
+| **Design** | `#glassmorphism` `#gsap-animations` `#fluent-design` `#dark-mode` `#blur-effects` |
+| **Tech Stack** | `#electron` `#javascript` `#node-js` `#windows-api` `#open-source` |
+
+<br />
+
+> **Hashtags:** `#dynamicisland` `#dynamicislandwindows` `#windows11` `#windows10` `#electron` `#glassmorphism` `#spotify` `#desktopwidgets` `#rainmeter` `#customization` `#productivity` `#opensource`
 
 ---
 
