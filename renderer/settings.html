@@ -3,258 +3,168 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dynamic Island - Settings</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>Dynamic Island — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
 :root {
   --accent: #0a84ff;
-  --surface: rgba(255,255,255,0.05);
-  --surface-h: rgba(255,255,255,0.09);
-  --border: rgba(255,255,255,0.1);
-  --muted: rgba(255,255,255,0.45);
+  --accent-glow: rgba(10, 132, 255, 0.4);
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --surface-card: rgba(22, 22, 28, 0.7);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(10, 132, 255, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --danger: #ff453a;
+  --success: #32d74b;
+  --warning: #ff9f0a;
 }
+
 html, body {
-  width: 100%; height: 100%;
-  background: transparent;
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: #fff;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-primary);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* App Outer Container */
 .app {
-  width: 100%; height: 100%;
-  background: rgba(11,11,15,0.93);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  width: 100%;
+  height: 100%;
+  background: rgba(14, 14, 18, 0.95);
+  backdrop-filter: blur(48px) saturate(190%);
+  -webkit-backdrop-filter: blur(48px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.2);
   position: relative;
 }
-/* Title bar */
+
+/* Titlebar */
 .titlebar {
   -webkit-app-region: drag;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 16px 11px 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.tl { display: flex; align-items: center; gap: 10px; }
-.app-icon {
-  width: 28px; height: 28px;
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(10,132,255,0.35);
-  border: 1px solid rgba(255,255,255,0.2);
-  background: #000;
-}
-.app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.tb-title { font-size: 13px; font-weight: 600; letter-spacing: -0.2px; }
-.tb-sub   { font-size: 11px; color: var(--muted); }
-.x-btn {
-  -webkit-app-region: no-drag;
-  width: 26px; height: 26px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--muted);
-  transition: background 0.15s, color 0.15s;
-}
-.x-btn:hover { background: rgba(255,59,48,0.25); color: #ff3b30; }
-.x-btn svg { width: 12px; height: 12px; }
-
-/* Content scroll */
-.content {
-  flex: 1; overflow-y: auto;
-  padding: 14px 16px 18px;
-  display: flex; flex-direction: column; gap: 16px;
-}
-.content::-webkit-scrollbar { width: 4px; }
-.content::-webkit-scrollbar-track { background: transparent; }
-.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 99px; }
-
-/* Preview */
-.preview-area {
-  width: 100%; height: 58px; border-radius: 12px;
-  background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border); position: relative; overflow: hidden;
-}
-.preview-pill {
-  position: relative; z-index: 1;
-  width: 96px; height: 26px; border-radius: 13px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.25s ease;
-}
-.preview-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.65); }
-.plabel { font-size: 10.5px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; text-align: center; margin-bottom: 5px; }
-
-/* Sections */
-.sh { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.si { width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-.si svg { width: 13px; height: 13px; fill: currentColor; }
-.stitle { font-size: 12px; font-weight: 600; }
-
-/* Sliders */
-.sw {
-  display: flex; flex-direction: column; gap: 2px;
-  padding: 8px 12px 10px; background: var(--surface);
-  border-radius: 10px; border: 1px solid var(--border); margin-bottom: 2px;
-}
-.sw-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.sw-name { font-size: 12.5px; font-weight: 500; }
-.sw-val { font-size: 12px; font-weight: 600; color: var(--accent); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
-input[type="range"] {
-  -webkit-appearance: none; width: 100%; height: 4px;
-  border-radius: 999px; outline: none; cursor: pointer;
-  background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct,50%), rgba(255,255,255,0.12) var(--pct,50%));
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.5); cursor: pointer;
-  transition: transform 0.12s;
-}
-input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
-
-/* Colors */
-.color-box {
-  display: flex; flex-direction: column; gap: 7px;
-  padding: 10px 12px; background: var(--surface);
-  border-radius: 10px; border: 1px solid var(--border);
-}
-.cb-label { font-size: 12.5px; font-weight: 500; }
-.swatches { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
-.sw2 {
-  width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
-  border: 2px solid transparent;
-  transition: transform 0.15s, border-color 0.15s; position: relative;
-}
-.sw2:hover { transform: scale(1.15); }
-.sw2.on { border-color: rgba(255,255,255,0.9); transform: scale(1.15); }
-.sw2.on::after {
-  content: "✓"; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 700;
-}
-.custom-sw {
-  width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
-  border: 2px dashed rgba(255,255,255,0.3);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted); font-size: 16px;
-  transition: border-color 0.15s; position: relative; overflow: hidden;
-}
-.custom-sw:hover { border-color: rgba(255,255,255,0.6); }
-.custom-sw input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
-/* Themes */
-.themes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.tbtn {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 9px 8px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
-  transition: background 0.15s, border-color 0.15s; color: #fff;
-}
-.tbtn:hover { background: var(--surface-h); }
-.tbtn.on { border-color: var(--accent); background: rgba(10,132,255,0.1); }
-.tprev { width: 52px; height: 14px; border-radius: 7px; border: 0.5px solid rgba(255,255,255,0.15); }
-.tname { font-size: 11px; font-weight: 500; }
-
-/* Icon accent colors */
-.ic-blue   { background: rgba(10,132,255,0.2);  color: #0a84ff; }
-.ic-purple { background: rgba(191,90,242,0.2);  color: #bf5af2; }
-.ic-green  { background: rgba(48,209,88,0.2);   color: #34c759; }
-.ic-orange { background: rgba(255,159,10,0.2);  color: #ff9f0a; }
-.ic-grey   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); }
-
-/* Pinned Footer & Actions */
-.footer {
-  flex-shrink: 0;
-  padding: 11px 16px 13px;
-  background: rgba(14, 14, 20, 0.94);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-.status-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
-  color: var(--muted);
-  padding: 0 2px;
+  padding: 14px 18px 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
 }
-.status-left {
+
+.tl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(10, 132, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: #000;
+  flex-shrink: 0;
+}
+
+.app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tb-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #34c759;
-  box-shadow: 0 0 7px rgba(52, 199, 89, 0.5);
-  transition: all 0.25s ease;
-}
-.status-dot.dirty {
-  background: #ff9f0a;
-  box-shadow: 0 0 7px rgba(255, 159, 10, 0.6);
-}
-.actions-row {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  width: 100%;
-}
-.sbtn {
-  flex: 1.45;
-  height: 38px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0a84ff, #0066d6);
-  color: #fff;
-  font-family: inherit;
-  font-size: 12.5px;
+
+.tb-badge {
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: -0.1px;
-  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: rgba(10, 132, 255, 0.2);
+  color: #38bdf8;
+  border: 0.5px solid rgba(56, 189, 248, 0.3);
+}
+
+.tb-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.x-btn {
+  -webkit-app-region: no-drag;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
-  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
-  position: relative;
-  overflow: hidden;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
 }
-.sbtn:hover {
-  background: linear-gradient(135deg, #2191ff, #0a75e3);
-  box-shadow: 0 6px 18px rgba(10, 132, 255, 0.45);
-  transform: translateY(-1px);
+
+.x-btn:hover {
+  background: rgba(255, 59, 48, 0.22);
+  border-color: rgba(255, 59, 48, 0.4);
+  color: var(--danger);
+  transform: scale(1.05);
 }
-.sbtn:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.25);
+
+.x-btn svg {
+  width: 13px;
+  height: 13px;
 }
-.sbtn.saved {
-  background: linear-gradient(135deg, #34c759, #28a745) !important;
-  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.45) !important;
+
+/* Top Tab Switcher */
+.settings-tabs {
+  display: flex;
+  padding: 8px 18px;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-.rbtn {
+
+.tab-btn {
   flex: 1;
-  height: 38px;
-  padding: 0 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.75);
+  padding: 7px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -263,41 +173,782 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.rbtn:hover {
-  background: rgba(255, 59, 48, 0.15);
-  border-color: rgba(255, 59, 48, 0.35);
-  color: #ff453a;
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
-.rbtn:active {
-  transform: translateY(1px);
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
-.btn-icon {
+
+.tab-btn svg {
   width: 14px;
   height: 14px;
   fill: currentColor;
-  flex-shrink: 0;
-  transition: transform 0.2s;
 }
 
-/* Toast popup */
-.toast {
-  position: absolute;
-  top: 54px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-15px);
-  background: rgba(24, 24, 32, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 14px rgba(10, 132, 255, 0.25);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  padding: 7px 14px;
+/* Scrollable Content Container */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
   border-radius: 99px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Tab Sections */
+.tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tab-pane.active {
+  display: flex;
+}
+
+/* ─── LIVE PREVIEW SECTION ────────────────────────────────── */
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.preview-toggle-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.pt-chip {
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pt-chip.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 600;
+}
+
+.preview-stage {
+  width: 100%;
+  height: 84px;
+  border-radius: 16px;
+  /* Rich abstract gradient mimicking a desktop wallpaper so glassmorphism pop! */
+  background: radial-gradient(circle at 20% 30%, #2a2848 0%, #151829 45%, #0d0f18 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.preview-stage::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 20%;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.25) 0%, transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.preview-stage::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: 25%;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(191, 90, 242, 0.2) 0%, transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+/* Dynamic Island Mockup inside Preview */
+.preview-pill {
+  position: relative;
+  z-index: 2;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.3s;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.preview-pill.mode-compact {
+  width: 132px;
+  height: 36px;
+}
+
+.preview-pill.mode-music {
+  width: 220px;
+  height: 44px;
+  padding: 0 14px;
+}
+
+.preview-pill.mode-stealth {
+  width: 80px;
+  height: 8px;
+  border-radius: 0 0 8px 8px;
+  padding: 0;
+  justify-content: center;
+}
+
+.prev-stealth-bar {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 99px;
+  box-shadow: 0 0 8px rgba(10, 132, 255, 0.8);
+}
+
+.prev-left, .prev-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prev-art {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ff2d55, #ff375f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prev-art svg {
+  width: 11px;
+  height: 11px;
+  fill: #fff;
+}
+
+.prev-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.prev-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.prev-sub {
+  font-size: 8px;
+  color: var(--text-muted);
+}
+
+.prev-wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.p-bar {
+  width: 2.5px;
+  border-radius: 2px;
+  background: #38bdf8;
+  animation: pwave 1s ease-in-out infinite alternate;
+}
+
+.p-bar:nth-child(1) { height: 8px; animation-delay: 0.1s; }
+.p-bar:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+.p-bar:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+.p-bar:nth-child(4) { height: 16px; animation-delay: 0.4s; }
+
+@keyframes pwave {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
+
+.prev-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+/* ─── SECTION HEADERS ─────────────────────────────────────── */
+.sh {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+}
+
+.si {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.si svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.stitle {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.ic-blue   { background: rgba(10, 132, 255, 0.2);  color: #0a84ff; }
+.ic-purple { background: rgba(191, 90, 242, 0.2);  color: #bf5af2; }
+.ic-green  { background: rgba(50, 215, 75, 0.2);   color: #32d74b; }
+.ic-orange { background: rgba(255, 159, 10, 0.2);  color: #ff9f0a; }
+.ic-cyan   { background: rgba(56, 189, 248, 0.2);  color: #38bdf8; }
+.ic-grey   { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+
+/* ─── PRESET THEMES GRID ──────────────────────────────────── */
+.themes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tbtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #fff;
+  text-align: left;
+}
+
+.tbtn:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.tbtn.on {
+  border-color: var(--accent);
+  background: rgba(10, 132, 255, 0.15);
+  box-shadow: 0 0 14px rgba(10, 132, 255, 0.3), inset 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.tprev {
+  width: 32px;
+  height: 20px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.tinfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.tname {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tdesc {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ─── DOCK & POSITION PRESET CARDS ────────────────────────── */
+.dock-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dock-card {
+  padding: 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #fff;
+  position: relative;
+}
+
+.dock-card:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.dock-card.on {
+  border-color: var(--accent);
+  background: rgba(10, 132, 255, 0.15);
+  box-shadow: 0 0 16px rgba(10, 132, 255, 0.3);
+}
+
+.dock-badge-rec {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 99px;
+  border: 0.5px solid rgba(56, 189, 248, 0.4);
+}
+
+.dock-visual {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mini screen monitor mockup */
+.mock-island-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 5px;
+  background: #38bdf8;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+}
+
+.mock-island-corner {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 14px;
+  height: 14px;
+  background: #0a84ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(10, 132, 255, 0.7);
+}
+
+.mock-island-center {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+}
+
+.mock-island-autohide {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+}
+
+.dock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dock-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dock-desc {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* ─── SLIDERS & CONTROLS ──────────────────────────────────── */
+.controls-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sw {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px 12px;
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+
+.sw:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.sw-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sw-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sw-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+  min-width: 44px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  background: rgba(10, 132, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 50%), rgba(255, 255, 255, 0.14) var(--pct, 50%));
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 2px rgba(10, 132, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.22);
+  box-shadow: 0 2px 12px rgba(10, 132, 255, 0.8);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+}
+
+/* ─── COLOR SWATCHES BOX ─────────────────────────────────── */
+.color-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.cb-label {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sw2 {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sw2:hover {
+  transform: scale(1.15);
+}
+
+.sw2.on {
+  border-color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.sw2.on::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.custom-sw {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 16px;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.custom-sw:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+
+.custom-sw input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── PINNED FOOTER ACTIONS ───────────────────────────────── */
+.footer {
+  flex-shrink: 0;
+  padding: 13px 18px 15px;
+  background: rgba(14, 14, 20, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+
+.status-left {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11.5px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(50, 215, 75, 0.6);
+  transition: all 0.25s ease;
+}
+
+.status-dot.dirty {
+  background: var(--warning);
+  box-shadow: 0 0 8px rgba(255, 159, 10, 0.8);
+}
+
+.actions-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.sbtn {
+  flex: 1.4;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0a84ff, #0066d6);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sbtn:hover {
+  background: linear-gradient(135deg, #2490ff, #0a77e8);
+  box-shadow: 0 6px 20px rgba(10, 132, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+.sbtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+}
+
+.sbtn.saved {
+  background: linear-gradient(135deg, #32d74b, #28a745) !important;
+  box-shadow: 0 4px 16px rgba(50, 215, 75, 0.5) !important;
+}
+
+.rbtn {
+  flex: 1;
+  height: 42px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.18s ease;
+}
+
+.rbtn:hover {
+  background: rgba(255, 69, 58, 0.18);
+  border-color: rgba(255, 69, 58, 0.4);
+  color: #ff6961;
+}
+
+.rbtn:active {
+  transform: translateY(1px);
+}
+
+.btn-icon {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Floating Toast Notification */
+.toast {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(22, 22, 30, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 16px rgba(10, 132, 255, 0.3);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  padding: 8px 16px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
   font-weight: 500;
   color: #fff;
   opacity: 0;
@@ -306,172 +957,335 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
   z-index: 100;
   white-space: nowrap;
 }
+
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
 .toast-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #34c759;
-  box-shadow: 0 0 6px #34c759;
+  background: var(--success);
+  box-shadow: 0 0 7px var(--success);
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- Titlebar -->
+
+  <!-- Header Titlebar -->
   <div class="titlebar">
     <div class="tl">
       <div class="app-icon">
         <img src="../assets/logo.png" alt="Dynamic Island" />
       </div>
       <div>
-        <div class="tb-title">Dynamic Island</div>
-        <div class="tb-sub">Appearance Settings</div>
+        <div class="tb-title">
+          Dynamic Island
+          <span class="tb-badge">v2.0 Pro</span>
+        </div>
+        <div class="tb-sub">Desktop Personalization &amp; Docking</div>
       </div>
     </div>
-    <div class="x-btn" onclick="window.settingsBridge.close()">
+    <div class="x-btn" onclick="window.settingsBridge ? window.settingsBridge.close() : window.close()" title="Close Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </div>
   </div>
 
-  <!-- Content -->
+  <!-- Category Navigation Switcher -->
+  <div class="settings-tabs">
+    <button class="tab-btn active" onclick="switchSettingsTab('appearance', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19H12c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+      Appearance
+    </button>
+    <button class="tab-btn" onclick="switchSettingsTab('docking', this)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4V6zm2 2v8h12V8H6zm3 1h6v2H9V9z"/></svg>
+      Dock &amp; Idle
+    </button>
+    <button class="tab-btn" onclick="switchSettingsTab('behavior', this)">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      Behavior
+    </button>
+  </div>
+
+  <!-- Scrollable Settings Body -->
   <div class="content">
 
-    <!-- Live Preview -->
-    <div>
-      <div class="plabel">Live Preview</div>
-      <div class="preview-area">
-        <div class="preview-pill" id="preview-pill">
-          <div class="preview-dot"></div>
-        </div>
-      </div>
-    </div>
+    <!-- ─── TAB 1: APPEARANCE ───────────────────────────────── -->
+    <div class="tab-pane active" id="tab-appearance">
 
-    <!-- Preset Themes -->
-    <div>
-      <div class="sh">
-        <div class="si ic-orange">
-          <svg viewBox="0 0 24 24"><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.41-1.42-1.42 1.42 1.41 1.41L3 18.25V21h2.75l9.58-9.58 1.41 1.41 1.42-1.42-1.42-1.41 3.12-3.12c.4-.4.4-1.03.05-1.25z"/></svg>
+      <!-- Live Dynamic Island Preview -->
+      <div class="preview-card">
+        <div class="preview-header-row">
+          <span class="plabel">Live Glass Preview</span>
+          <div class="preview-toggle-bar">
+            <button class="pt-chip active" id="pt-compact" onclick="setPreviewMode('compact')">Compact</button>
+            <button class="pt-chip" id="pt-music" onclick="setPreviewMode('music')">Music</button>
+            <button class="pt-chip" id="pt-stealth" onclick="setPreviewMode('stealth')">Stealth</button>
+          </div>
         </div>
-        <div class="stitle">Preset Themes</div>
-      </div>
-      <div class="themes">
-        <button class="tbtn" id="t-void"   onclick="applyTheme('void')">
-          <div class="tprev" style="background:#080808;"></div>
-          <div class="tname">Void Black</div>
-        </button>
-        <button class="tbtn" id="t-glass"  onclick="applyTheme('glass')">
-          <div class="tprev" style="background:rgba(10,10,12,0.65);"></div>
-          <div class="tname">Glass</div>
-        </button>
-        <button class="tbtn" id="t-smoke"  onclick="applyTheme('smoke')">
-          <div class="tprev" style="background:rgba(28,28,36,0.8);"></div>
-          <div class="tname">Smoke</div>
-        </button>
-        <button class="tbtn" id="t-amoled" onclick="applyTheme('amoled')">
-          <div class="tprev" style="background:#000;"></div>
-          <div class="tname">AMOLED</div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Transparency & Blur -->
-    <div>
-      <div class="sh">
-        <div class="si ic-blue">
-          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-        </div>
-        <div class="stitle">Transparency &amp; Blur</div>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Background Opacity</div><div class="sw-val" id="v-opacity">72%</div></div>
-        <input type="range" id="s-opacity" min="0" max="100" value="72" oninput="sl('opacity',this)"/>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Blur Amount</div><div class="sw-val" id="v-blur">32px</div></div>
-        <input type="range" id="s-blur" min="0" max="60" value="32" oninput="sl('blur',this)"/>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Saturation</div><div class="sw-val" id="v-saturation">180%</div></div>
-        <input type="range" id="s-saturation" min="80" max="280" value="180" oninput="sl('saturation',this)"/>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Brightness</div><div class="sw-val" id="v-brightness">85%</div></div>
-        <input type="range" id="s-brightness" min="30" max="120" value="85" oninput="sl('brightness',this)"/>
-      </div>
-    </div>
-
-    <!-- Tint Color -->
-    <div>
-      <div class="sh">
-        <div class="si ic-purple">
-          <svg viewBox="0 0 24 24"><path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67C14.5 20.88 13.38 22 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65C11.73 16.12 12.85 15 14.23 15H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/></svg>
-        </div>
-        <div class="stitle">Tint Color</div>
-      </div>
-      <div class="color-box">
-        <div class="cb-label">Background Tint</div>
-        <div class="swatches" id="tint-row">
-          <div class="sw2 on" data-t="0,0,0"    style="background:#000;"    onclick="pickTint(this,'0,0,0')"></div>
-          <div class="sw2"    data-t="10,10,12" style="background:#0a0a0c;" onclick="pickTint(this,'10,10,12')"></div>
-          <div class="sw2"    data-t="20,20,30" style="background:#14141e;" onclick="pickTint(this,'20,20,30')"></div>
-          <div class="sw2"    data-t="0,20,40"  style="background:#001428;" onclick="pickTint(this,'0,20,40')"></div>
-          <div class="sw2"    data-t="30,0,50"  style="background:#1e0032;" onclick="pickTint(this,'30,0,50')"></div>
-          <div class="sw2"    data-t="50,10,0"  style="background:#320a00;" onclick="pickTint(this,'50,10,0')"></div>
-          <div class="sw2"    data-t="0,40,20"  style="background:#002814;" onclick="pickTint(this,'0,40,20')"></div>
-          <div class="custom-sw" title="Custom color">
-            +<input type="color" id="custom-tint" oninput="customTint(this.value)"/>
+        <div class="preview-stage">
+          <div class="preview-pill mode-compact" id="preview-pill">
+            <div class="prev-left" id="prev-left">
+              <div class="prev-art">
+                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+              <div class="prev-text" id="prev-meta" style="display: none;">
+                <span class="prev-title">Starboy</span>
+                <span class="prev-sub">The Weeknd</span>
+              </div>
+            </div>
+            <div class="prev-right" id="prev-right">
+              <div class="prev-wave">
+                <span class="p-bar"></span>
+                <span class="p-bar"></span>
+                <span class="p-bar"></span>
+                <span class="p-bar"></span>
+              </div>
+              <span class="prev-time" id="prev-time">03:45</span>
+            </div>
+            <div class="prev-stealth-bar" id="prev-stealth" style="display: none;"></div>
           </div>
         </div>
       </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Tint Intensity</div><div class="sw-val" id="v-tintOpacity">0%</div></div>
-        <input type="range" id="s-tintOpacity" min="0" max="60" value="0" oninput="sl('tintOpacity',this)"/>
-      </div>
-    </div>
 
-    <!-- Border & Shadow -->
-    <div>
-      <div class="sh">
-        <div class="si ic-green">
-          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+      <!-- Preset Themes -->
+      <div>
+        <div class="sh">
+          <div class="si ic-orange">
+            <svg viewBox="0 0 24 24"><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.41-1.42-1.42 1.42 1.41 1.41L3 18.25V21h2.75l9.58-9.58 1.41 1.41 1.42-1.42-1.42-1.41 3.12-3.12c.4-.4.4-1.03.05-1.25z"/></svg>
+          </div>
+          <div class="stitle">Preset Glass Themes</div>
         </div>
-        <div class="stitle">Border &amp; Shadow</div>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Border Opacity</div><div class="sw-val" id="v-border">12%</div></div>
-        <input type="range" id="s-border" min="0" max="100" value="12" oninput="sl('border',this)"/>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Shadow Intensity</div><div class="sw-val" id="v-shadow">60%</div></div>
-        <input type="range" id="s-shadow" min="0" max="100" value="60" oninput="sl('shadow',this)"/>
-      </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Inner Glow</div><div class="sw-val" id="v-glow">10%</div></div>
-        <input type="range" id="s-glow" min="0" max="40" value="10" oninput="sl('glow',this)"/>
-      </div>
-    </div>
-
-    <!-- Misc -->
-    <div>
-      <div class="sh">
-        <div class="si ic-grey">
-          <svg viewBox="0 0 24 24"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97 19.54 16.3 17.18 19.07 13.92 20.15 13.35 20.34 13 20.88 13 21.48V21.48C13 22.37 13.84 23.03 14.69 22.77 19.64 21.2 22.5 16.07 21.3 11.07 20.34 6.8 16.56 3.66 12.58 2.04L13 2.05ZM11 2.06C6.58 2.7 3.24 6.57 3.02 11.1L1.02 11.09C1.28 5.41 5.85 1 11 .05V2.06ZM11 22C8.79 22 6.79 21.08 5.34 19.59L3.92 21.01C5.76 22.9 8.26 24 11 24V22ZM2.99 13H1C1.17 15.35 2.08 17.5 3.56 19.16L4.98 17.74C3.91 16.47 3.17 14.82 2.99 13Z"/></svg>
+        <div class="themes-grid">
+          <button class="tbtn" id="t-void" onclick="applyTheme('void')">
+            <div class="tprev" style="background:#09090b;"></div>
+            <div class="tinfo">
+              <div class="tname">Void Black</div>
+              <div class="tdesc">Deep matte luxury</div>
+            </div>
+          </button>
+          <button class="tbtn" id="t-glass" onclick="applyTheme('glass')">
+            <div class="tprev" style="background:rgba(14,14,20,0.65); border-color:rgba(56,189,248,0.5);"></div>
+            <div class="tinfo">
+              <div class="tname">Liquid Glass</div>
+              <div class="tdesc">Translucent blur</div>
+            </div>
+          </button>
+          <button class="tbtn" id="t-smoke" onclick="applyTheme('smoke')">
+            <div class="tprev" style="background:rgba(28,28,38,0.85);"></div>
+            <div class="tinfo">
+              <div class="tname">Cyber Smoke</div>
+              <div class="tdesc">Subtle dark tint</div>
+            </div>
+          </button>
+          <button class="tbtn" id="t-amoled" onclick="applyTheme('amoled')">
+            <div class="tprev" style="background:#000000; border-color:#000;"></div>
+            <div class="tinfo">
+              <div class="tname">OLED True</div>
+              <div class="tdesc">0% light bleed</div>
+            </div>
+          </button>
         </div>
-        <div class="stitle">Behaviour</div>
       </div>
-      <div class="sw">
-        <div class="sw-h"><div class="sw-name">Auto-collapse delay</div><div class="sw-val" id="v-collapse">2s</div></div>
-        <input type="range" id="s-collapse" min="1" max="10" value="2" oninput="sl('collapse',this)"/>
-      </div>
-    </div>
 
-  </div><!-- .content -->
+      <!-- Glass Translucency & Filter Sliders -->
+      <div>
+        <div class="sh">
+          <div class="si ic-blue">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </div>
+          <div class="stitle">Glass Optics &amp; Blur</div>
+        </div>
+        <div class="controls-group">
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Glass Opacity</span>
+              <span class="sw-val" id="v-opacity">65%</span>
+            </div>
+            <input type="range" id="s-opacity" min="0" max="100" value="65" oninput="sl('opacity',this)"/>
+          </div>
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Frosted Blur Strength</span>
+              <span class="sw-val" id="v-blur">24px</span>
+            </div>
+            <input type="range" id="s-blur" min="0" max="60" value="24" oninput="sl('blur',this)"/>
+          </div>
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Vibrant Saturation</span>
+              <span class="sw-val" id="v-saturation">180%</span>
+            </div>
+            <input type="range" id="s-saturation" min="80" max="280" value="180" oninput="sl('saturation',this)"/>
+          </div>
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Glass Brightness</span>
+              <span class="sw-val" id="v-brightness">88%</span>
+            </div>
+            <input type="range" id="s-brightness" min="30" max="120" value="88" oninput="sl('brightness',this)"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Tint Palette -->
+      <div>
+        <div class="sh">
+          <div class="si ic-purple">
+            <svg viewBox="0 0 24 24"><path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67C14.5 20.88 13.38 22 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65C11.73 16.12 12.85 15 14.23 15H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/></svg>
+          </div>
+          <div class="stitle">Glass Tint &amp; Aura</div>
+        </div>
+        <div class="color-box">
+          <div class="cb-label">Ambient Tint Hue</div>
+          <div class="swatches" id="tint-row">
+            <div class="sw2 on" data-t="10,10,12" style="background:#0a0a0c;" onclick="pickTint(this,'10,10,12')" title="Obsidian"></div>
+            <div class="sw2" data-t="0,0,0" style="background:#000000;" onclick="pickTint(this,'0,0,0')" title="Pure Black"></div>
+            <div class="sw2" data-t="14,24,48" style="background:#0e1830;" onclick="pickTint(this,'14,24,48')" title="Sapphire Midnight"></div>
+            <div class="sw2" data-t="32,12,48" style="background:#200c30;" onclick="pickTint(this,'32,12,48')" title="Deep Violet"></div>
+            <div class="sw2" data-t="48,16,8" style="background:#301008;" onclick="pickTint(this,'48,16,8')" title="Amber Sunset"></div>
+            <div class="sw2" data-t="8,40,24" style="background:#082818;" onclick="pickTint(this,'8,40,24')" title="Emerald Matrix"></div>
+            <div class="custom-sw" title="Pick custom tint color">
+              +<input type="color" id="custom-tint" oninput="customTint(this.value)"/>
+            </div>
+          </div>
+        </div>
+        <div class="controls-group" style="margin-top: 6px;">
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Tint Blend Intensity</span>
+              <span class="sw-val" id="v-tintOpacity">0%</span>
+            </div>
+            <input type="range" id="s-tintOpacity" min="0" max="60" value="0" oninput="sl('tintOpacity',this)"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Border & Depth -->
+      <div>
+        <div class="sh">
+          <div class="si ic-green">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+          </div>
+          <div class="stitle">Border &amp; Elevation</div>
+        </div>
+        <div class="controls-group">
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Specular Border Opacity</span>
+              <span class="sw-val" id="v-border">12%</span>
+            </div>
+            <input type="range" id="s-border" min="0" max="100" value="12" oninput="sl('border',this)"/>
+          </div>
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Drop Shadow Intensity</span>
+              <span class="sw-val" id="v-shadow">50%</span>
+            </div>
+            <input type="range" id="s-shadow" min="0" max="100" value="50" oninput="sl('shadow',this)"/>
+          </div>
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Top Glass Reflection Glow</span>
+              <span class="sw-val" id="v-glow">12%</span>
+            </div>
+            <input type="range" id="s-glow" min="0" max="40" value="12" oninput="sl('glow',this)"/>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-appearance -->
+
+    <!-- ─── TAB 2: DOCK & IDLE BEHAVIOR ─────────────────────── -->
+    <div class="tab-pane" id="tab-docking">
+      <div>
+        <div class="sh">
+          <div class="si ic-cyan">
+            <svg viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm0 14H5V8h14v10z"/></svg>
+          </div>
+          <div class="stitle">Idle Position &amp; Docking Mode</div>
+        </div>
+        <p style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+          Jab Dynamic Island par koi gaana ya timer na chal raha ho, ye screen par kahan aur kaise rahe:
+        </p>
+        <div class="dock-options-grid">
+
+          <!-- Option 1: Stealth Top Notch (Recommended) -->
+          <div class="dock-card on" id="dock-opt-stealth" onclick="selectDockMode('stealth')">
+            <span class="dock-badge-rec">Recommended</span>
+            <div class="dock-visual">
+              <div class="mock-island-notch"></div>
+            </div>
+            <div class="dock-info">
+              <div class="dock-title">Stealth Top Notch</div>
+              <div class="dock-desc">Top bezel me 6px micro-bar ban kar tuck ho jata hai. Browser tabs aur titlebars 100% free rahenge!</div>
+            </div>
+          </div>
+
+          <!-- Option 2: Corner Capsule -->
+          <div class="dock-card" id="dock-opt-corner" onclick="selectDockMode('corner')">
+            <div class="dock-visual">
+              <div class="mock-island-corner"></div>
+            </div>
+            <div class="dock-info">
+              <div class="dock-title">Corner Capsule</div>
+              <div class="dock-desc">Screen ke top-right corner me compact capsule ban kar chala jata hai. Center bilkul saaf!</div>
+            </div>
+          </div>
+
+          <!-- Option 3: Auto-Hide on Idle -->
+          <div class="dock-card" id="dock-opt-autohide" onclick="selectDockMode('autohide')">
+            <div class="dock-visual">
+              <div class="mock-island-autohide"></div>
+            </div>
+            <div class="dock-info">
+              <div class="dock-title">Auto-Hide Peek</div>
+              <div class="dock-desc">Idle hote hi screen se pura slip ho jata hai. Mouse top border par aate hi wapas pop hota hai.</div>
+            </div>
+          </div>
+
+          <!-- Option 4: Classic Center Pill -->
+          <div class="dock-card" id="dock-opt-center" onclick="selectDockMode('center')">
+            <div class="dock-visual">
+              <div class="mock-island-center"></div>
+            </div>
+            <div class="dock-info">
+              <div class="dock-title">Classic Center Pill</div>
+              <div class="dock-desc">Traditional iPhone dynamic island jo screen ke beech me floating pill ki tarah rehta hai.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /tab-docking -->
+
+    <!-- ─── TAB 3: BEHAVIOR & TIMINGS ───────────────────────── -->
+    <div class="tab-pane" id="tab-behavior">
+      <div>
+        <div class="sh">
+          <div class="si ic-grey">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+          </div>
+          <div class="stitle">Auto-Collapse Delay</div>
+        </div>
+        <div class="controls-group">
+          <div class="sw">
+            <div class="sw-h">
+              <span class="sw-name">Collapse After Mouse Leaves</span>
+              <span class="sw-val" id="v-collapse">1.5s</span>
+            </div>
+            <input type="range" id="s-collapse" min="0.5" max="6" step="0.5" value="1.5" oninput="sl('collapse',this)"/>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-behavior -->
+
+  </div><!-- /content -->
 
   <!-- Pinned Action Footer -->
   <div class="footer">
@@ -480,9 +1294,10 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
         <span class="status-dot" id="status-dot"></span>
         <span id="status-text">All changes saved</span>
       </div>
+      <span style="font-size: 10.5px; color: var(--text-muted);">Realtime Hardware Accelerated</span>
     </div>
     <div class="actions-row">
-      <button class="rbtn" id="btn-reset" onclick="resetSettings()" title="Reset to defaults">
+      <button class="rbtn" id="btn-reset" onclick="resetSettings()" title="Reset to Defaults">
         <svg viewBox="0 0 24 24" class="btn-icon">
           <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
         </svg>
@@ -496,41 +1311,115 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.18); }
         <span id="save-btn-text">Save Changes</span>
       </button>
     </div>
-  </div><!-- .footer -->
+  </div>
 
-  <!-- Floating Toast Notification -->
+  <!-- Floating Toast -->
   <div class="toast" id="toast">
     <div class="toast-dot"></div>
     <span id="toast-msg">Settings saved successfully!</span>
   </div>
-</div><!-- .app -->
+
+</div>
 
 <script>
 var bridge = window.settingsBridge;
 
-var S = { opacity:65, blur:24, saturation:180, brightness:88, tint:'10,10,12', tintOpacity:0, border:12, shadow:50, glow:12, collapse:1.5 };
+var S = {
+  opacity: 65,
+  blur: 24,
+  saturation: 180,
+  brightness: 88,
+  tint: '10,10,12',
+  tintOpacity: 0,
+  border: 12,
+  shadow: 50,
+  glow: 12,
+  collapse: 1.5,
+  dockMode: 'stealth', // stealth | corner | autohide | center
+};
 
 var THEMES = {
-  void:  { opacity:95, blur:0,  saturation:100, brightness:100, tint:'0,0,0',    tintOpacity:0,  border:0,  shadow:85, glow:3,  collapse:1.5 },
-  glass: { opacity:65, blur:24, saturation:180, brightness:88,  tint:'10,10,12', tintOpacity:0,  border:12, shadow:50, glow:12, collapse:1.5 },
-  smoke: { opacity:75, blur:20, saturation:140, brightness:90,  tint:'20,20,30', tintOpacity:8,  border:8,  shadow:55, glow:7,  collapse:1.5 },
-  amoled:{ opacity:100,blur:0,  saturation:100, brightness:100, tint:'0,0,0',    tintOpacity:0,  border:0,  shadow:95, glow:0,  collapse:1.5 },
+  void: {
+    opacity: 96, blur: 0, saturation: 100, brightness: 100,
+    tint: '0,0,0', tintOpacity: 0, border: 6, shadow: 80, glow: 4, collapse: 1.5
+  },
+  glass: {
+    opacity: 65, blur: 24, saturation: 180, brightness: 88,
+    tint: '10,10,12', tintOpacity: 0, border: 12, shadow: 50, glow: 12, collapse: 1.5
+  },
+  smoke: {
+    opacity: 78, blur: 22, saturation: 140, brightness: 90,
+    tint: '28,28,38', tintOpacity: 10, border: 10, shadow: 55, glow: 8, collapse: 1.5
+  },
+  amoled: {
+    opacity: 100, blur: 0, saturation: 100, brightness: 100,
+    tint: '0,0,0', tintOpacity: 0, border: 0, shadow: 95, glow: 0, collapse: 1.5
+  },
 };
 
 var FMT = {
-  opacity:     function(v){ return v+'%'; },
-  blur:        function(v){ return v+'px'; },
-  saturation:  function(v){ return v+'%'; },
-  brightness:  function(v){ return v+'%'; },
-  tintOpacity: function(v){ return v+'%'; },
-  border:      function(v){ return v+'%'; },
-  shadow:      function(v){ return v+'%'; },
-  glow:        function(v){ return v+'%'; },
-  collapse:    function(v){ return v+'s'; },
+  opacity:     function(v){ return v + '%'; },
+  blur:        function(v){ return v + 'px'; },
+  saturation:  function(v){ return v + '%'; },
+  brightness:  function(v){ return v + '%'; },
+  tintOpacity: function(v){ return v + '%'; },
+  border:      function(v){ return v + '%'; },
+  shadow:      function(v){ return v + '%'; },
+  glow:        function(v){ return v + '%'; },
+  collapse:    function(v){ return v + 's'; },
 };
 
 var isDirty = false;
 var toastTimer = null;
+
+function switchSettingsTab(tabId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+
+  if (btn) btn.classList.add('active');
+  var pane = document.getElementById('tab-' + tabId);
+  if (pane) pane.classList.add('active');
+}
+
+function setPreviewMode(mode) {
+  document.querySelectorAll('.pt-chip').forEach(function(c){ c.classList.remove('active'); });
+  var activeChip = document.getElementById('pt-' + mode);
+  if (activeChip) activeChip.classList.add('active');
+
+  var pill = document.getElementById('preview-pill');
+  var meta = document.getElementById('prev-meta');
+  var left = document.getElementById('prev-left');
+  var right = document.getElementById('prev-right');
+  var stealth = document.getElementById('prev-stealth');
+
+  pill.className = 'preview-pill mode-' + mode;
+
+  if (mode === 'stealth') {
+    if (left) left.style.display = 'none';
+    if (right) right.style.display = 'none';
+    if (stealth) stealth.style.display = 'block';
+  } else if (mode === 'music') {
+    if (left) left.style.display = 'flex';
+    if (right) right.style.display = 'flex';
+    if (meta) meta.style.display = 'flex';
+    if (stealth) stealth.style.display = 'none';
+  } else {
+    // compact
+    if (left) left.style.display = 'flex';
+    if (right) right.style.display = 'flex';
+    if (meta) meta.style.display = 'none';
+    if (stealth) stealth.style.display = 'none';
+  }
+}
+
+function selectDockMode(mode) {
+  S.dockMode = mode;
+  document.querySelectorAll('.dock-card').forEach(function(c){ c.classList.remove('on'); });
+  var activeCard = document.getElementById('dock-opt-' + mode);
+  if (activeCard) activeCard.classList.add('on');
+  markDirty();
+  push();
+}
 
 function showToast(msg) {
   var toast = document.getElementById('toast');
@@ -580,7 +1469,8 @@ function sl(key, el) {
   if (lbl && FMT[key]) lbl.textContent = FMT[key](v);
   track(el);
   markDirty();
-  preview(); push();
+  preview();
+  push();
 }
 
 function pickTint(el, tint) {
@@ -588,35 +1478,43 @@ function pickTint(el, tint) {
   el.classList.add('on');
   S.tint = tint;
   markDirty();
-  preview(); push();
+  preview();
+  push();
 }
 
 function customTint(hex) {
   var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   document.querySelectorAll('#tint-row .sw2').forEach(function(s){ s.classList.remove('on'); });
-  S.tint = r+','+g+','+b;
+  S.tint = r + ',' + g + ',' + b;
   markDirty();
-  preview(); push();
+  preview();
+  push();
 }
 
 function preview() {
   var pill = document.getElementById('preview-pill');
   if (!pill) return;
-  var baseA = (S.opacity/100).toFixed(2);
-  var tintA  = (S.tintOpacity/100).toFixed(2);
+  var baseA = (S.opacity / 100).toFixed(2);
+  var tintA = (S.tintOpacity / 100).toFixed(2);
   var bg = parseFloat(tintA) > 0
-    ? 'rgba('+S.tint+','+Math.max(parseFloat(baseA),parseFloat(tintA))+')'
-    : 'rgba(12,12,16,'+baseA+')';
+    ? 'rgba(' + S.tint + ',' + Math.max(parseFloat(baseA), parseFloat(tintA)) + ')'
+    : 'rgba(14,14,20,' + baseA + ')';
   pill.style.background = bg;
-  var bf = 'blur('+S.blur+'px) saturate('+S.saturation+'%) brightness('+S.brightness+'%)';
+  var bf = 'blur(' + S.blur + 'px) saturate(' + S.saturation + '%) brightness(' + S.brightness + '%)';
   pill.style.backdropFilter = bf;
   pill.style.webkitBackdropFilter = bf;
-  pill.style.border = '0.5px solid rgba(255,255,255,'+(S.border/100).toFixed(2)+')';
-  pill.style.boxShadow = '0 8px 32px rgba(0,0,0,'+(S.shadow/100).toFixed(2)+'), inset 0 1px 0 rgba(255,255,255,'+(S.glow/100).toFixed(2)+')';
+  var sVal = S.shadow / 100;
+  var s1 = (sVal * 0.55).toFixed(3);
+  var s2 = (sVal * 0.35).toFixed(3);
+  pill.style.boxShadow = sVal > 0
+    ? '0 14px 28px -6px rgba(0, 0, 0, ' + s1 + '), 0 4px 10px -2px rgba(0, 0, 0, ' + s2 + '), inset 0 1px 0 rgba(255, 255, 255, ' + (S.glow / 100).toFixed(2) + ')'
+    : 'inset 0 1px 0 rgba(255, 255, 255, ' + (S.glow / 100).toFixed(2) + ')';
 }
 
 function push() {
-  if (bridge && bridge.applySettings) bridge.applySettings(JSON.parse(JSON.stringify(S)));
+  if (bridge && bridge.applySettings) {
+    bridge.applySettings(JSON.parse(JSON.stringify(S)));
+  }
 }
 
 function setSlider(key, val) {
@@ -630,7 +1528,8 @@ function applyTheme(name) {
   document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
   var btn = document.getElementById('t-' + name);
   if (btn) btn.classList.add('on');
-  var t = THEMES[name]; if (!t) return;
+  var t = THEMES[name];
+  if (!t) return;
   Object.assign(S, t);
   ['opacity','blur','saturation','brightness','tintOpacity','border','shadow','glow','collapse'].forEach(function(k){
     setSlider(k, S[k]);
@@ -639,27 +1538,25 @@ function applyTheme(name) {
     s.classList.toggle('on', s.dataset.t === t.tint);
   });
   markDirty();
-  preview(); push();
+  preview();
+  push();
 }
 
 function saveSettings() {
   var cleanSettings = JSON.parse(JSON.stringify(S));
 
-  // 1. Save to local storage for instant renderer reload persistence
   try {
     localStorage.setItem('dynamic_island_settings', JSON.stringify(cleanSettings));
   } catch (e) {
     console.error('LocalStorage write failed:', e);
   }
 
-  // 2. Persist to file via IPC
   if (bridge && bridge.saveSettings) {
     bridge.saveSettings(cleanSettings);
   } else if (bridge && bridge.applySettings) {
     bridge.applySettings(cleanSettings);
   }
 
-  // 3. Update Save Button UI
   var btn = document.getElementById('btn-save');
   var btnTxt = document.getElementById('save-btn-text');
   if (btn) {
@@ -668,7 +1565,7 @@ function saveSettings() {
   }
 
   markSaved();
-  showToast('Customizations saved successfully!');
+  showToast('Settings saved successfully!');
 
   setTimeout(function() {
     if (btn && !isDirty) {
@@ -680,11 +1577,11 @@ function saveSettings() {
 
 function resetSettings() {
   applyTheme('glass');
+  selectDockMode('stealth');
   markDirty();
-  showToast('Reset to defaults. Click "Save Changes" to keep.');
+  showToast('Reset to defaults.');
 }
 
-// Initial load
 function initSettings() {
   try {
     var cached = localStorage.getItem('dynamic_island_settings');
@@ -699,7 +1596,10 @@ function initSettings() {
       if (S[k] !== undefined) setSlider(k, S[k]);
     });
 
-    // Check theme match
+    if (S.dockMode) {
+      selectDockMode(S.dockMode);
+    }
+
     var activeTheme = null;
     Object.keys(THEMES).forEach(function(name) {
       var t = THEMES[name];
@@ -715,7 +1615,6 @@ function initSettings() {
       if (tb) tb.classList.add('on');
     }
 
-    // Swatch match
     var matchedSwatch = false;
     document.querySelectorAll('#tint-row .sw2').forEach(function(s){
       var isCurrent = s.dataset.t === S.tint;

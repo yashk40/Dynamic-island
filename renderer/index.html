@@ -81,7 +81,7 @@
 
         <!-- Bottom row: AirPlay, Playback Controls (Previous, Rewind, Play/Pause, Forward, Next) -->
         <div class="music-controls-row">
-          <div class="ctrl-secondary-icon airplay-icon" title="AirPlay">
+          <div class="ctrl-secondary-icon airplay-icon" onclick="openSoundSettings(event)" title="Sound Output / Mixer Settings">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M6 22h12l-6-6zM21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4v-2H3V5h18v12h-4v2h4c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
             </svg>
@@ -131,9 +131,12 @@
             </button>
           </div>
 
-          <div class="ctrl-secondary-icon speaker-icon" title="Audio Output">
-            <svg viewBox="0 0 24 24" fill="currentColor">
+          <div class="ctrl-secondary-icon speaker-icon" id="speaker-icon" onclick="toggleVolume(event)" oncontextmenu="openSoundSettings(event)" title="Click: Mute/Unmute | Right-Click: Sound Settings">
+            <svg class="vol-icon-on" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+            <svg class="vol-icon-muted" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
             </svg>
           </div>
         </div>
@@ -178,7 +181,6 @@
               <polygon points="13.5,12 19.5,16 13.5,20" fill="#FFFFFF"/>
             </svg>
           </div>
-          <span class="quick-label">YouTube</span>
         </button>
 
         <!-- 2. Snip (Dark Squircle with Camera Lens Aperture) -->
@@ -205,7 +207,6 @@
               <circle cx="21.5" cy="10.5" r="1" fill="#38bdf8"/>
             </svg>
           </div>
-          <span class="quick-label">Snip</span>
         </button>
 
         <!-- 3. Calc (iOS Calculator 2x2 Grid) -->
@@ -232,7 +233,6 @@
               <line x1="19.7" y1="23.5" x2="24.8" y2="23.5" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
             </svg>
           </div>
-          <span class="quick-label">Calc</span>
         </button>
 
         <!-- 4. Files (White Squircle with macOS Azure Folder) -->
@@ -251,7 +251,6 @@
               <rect x="4.5" y="12" width="23" height="13" rx="3.2" fill="url(#folder-front-grad)"/>
             </svg>
           </div>
-          <span class="quick-label">Files</span>
         </button>
 
         <!-- 5. Lock (Royal Blue Gradient with Solid White Padlock) -->
@@ -264,7 +263,6 @@
               <path d="M15.3 17.8h1.4l.4 2.8h-2.2l.4-2.8z" fill="#1d4ed8"/>
             </svg>
           </div>
-          <span class="quick-label">Lock</span>
         </button>
 
         <!-- 6. Power (Crimson Red Gradient with Solid White Power Standby) -->
@@ -275,7 +273,6 @@
               <path d="M10.2 11.2a7.8 7.8 0 1 0 11.6 0" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
             </svg>
           </div>
-          <span class="quick-label">Power</span>
         </button>
       </div>
 
@@ -335,14 +332,49 @@
     <div class="state expanded-state stats-expanded" id="stats-expanded">
       <div class="stats-content">
         <div class="stat-item">
-          <div class="stat-label">CPU</div>
+          <div class="stat-header">
+            <span class="stat-label">CPU</span>
+            <span class="stat-value" id="cpu-value">0%</span>
+          </div>
           <div class="stat-bar"><div class="stat-fill cpu-fill" id="cpu-fill"></div></div>
-          <div class="stat-value" id="cpu-value">0%</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">RAM</div>
+          <div class="stat-header">
+            <span class="stat-label">RAM</span>
+            <span class="stat-value" id="ram-value">0%</span>
+          </div>
           <div class="stat-bar"><div class="stat-fill ram-fill" id="ram-fill"></div></div>
-          <div class="stat-value" id="ram-value">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── EXPANDED: NETWORK MONITOR ─────────────────── -->
+    <div class="state expanded-state network-expanded" id="network-expanded">
+      <div class="network-content">
+        <div class="net-item net-down">
+          <div class="net-icon down-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+          <div class="net-details">
+            <div class="net-label">DOWN</div>
+            <div class="net-speed" id="net-download">0.0 KB/s</div>
+          </div>
+        </div>
+        <div class="net-divider"></div>
+        <div class="net-item net-up">
+          <div class="net-icon up-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </div>
+          <div class="net-details">
+            <div class="net-label">UP</div>
+            <div class="net-speed" id="net-upload">0.0 KB/s</div>
+          </div>
         </div>
       </div>
     </div>

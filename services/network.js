@@ -2,6 +2,7 @@ const si = require('systeminformation');
 
 let smoothRx = 0;
 let smoothTx = 0;
+let intervalId = null; // Bug fix: must be declared at module scope so stop() can clear it
 
 function formatSpeed(bytesPerSec) {
   if (bytesPerSec < 100) return '0.0 KB/s';

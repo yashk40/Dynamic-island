@@ -1,13 +1,18 @@
 const { app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage } = require('electron');
 
 // ─── Hot Reload (watches renderer/ folder) ──────────────────────
+// Bug fix: on Windows the Electron binary requires .cmd extension
 try {
+  const electronBin = process.platform === 'win32'
+    ? `${__dirname}/node_modules/.bin/electron.cmd`
+    : `${__dirname}/node_modules/.bin/electron`;
   require('electron-reload')(__dirname, {
-    electron: require(`${__dirname}/node_modules/.bin/electron`),
+    electron: electronBin,
     watched: [
       `${__dirname}/renderer/index.html`,
       `${__dirname}/renderer/island.css`,
       `${__dirname}/renderer/island.js`,
+      `${__dirname}/renderer/settings.html`,
     ],
     hardReset: false, // Only reload renderer, not full app restart
   });
@@ -28,6 +33,7 @@ const DEFAULT_SETTINGS = {
   opacity: 65, blur: 24, saturation: 180, brightness: 88,
   tint: '10,10,12', tintOpacity: 0,
   border: 12, shadow: 50, glow: 12, collapse: 1.5,
+  dockMode: 'stealth',
 };
 
 // Settings storage file path in user data folder
@@ -62,7 +68,7 @@ function saveSettingsToFile(settings) {
 let currentSettings = loadSavedSettings();
 
 // Fixed canvas dimensions to accommodate all island activities with zero OS window resizing
-const ISLAND_WINDOW_W = 440;
+const ISLAND_WINDOW_W = 500;
 const ISLAND_WINDOW_H = 200;
 const ISLAND_TOP_OFFSET = 8;
 
@@ -116,8 +122,11 @@ function startCursorTracker() {
 }
 
 function createIslandWindow() {
-  const { width: screenW } = screen.getPrimaryDisplay().workAreaSize;
-  winX = Math.round(screenW / 2 - ISLAND_WINDOW_W / 2);
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const workArea = primaryDisplay.workArea || { width: 1920, x: 0 };
+  const screenW = workArea.width;
+  const screenX = workArea.x || 0;
+  winX = Math.round(screenX + (screenW - ISLAND_WINDOW_W) / 2);
   const x = winX;
 
   islandWindow = new BrowserWindow({
@@ -192,11 +201,13 @@ function createSettingsWindow() {
   }
 
   const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
+  const SETTINGS_W = 420;
+  const SETTINGS_H = 690;
   settingsWindow = new BrowserWindow({
-    width: 340,
-    height: 640,
-    x: Math.round(sw / 2 - 170),
-    y: Math.round(sh / 2 - 320),
+    width: SETTINGS_W,
+    height: SETTINGS_H,
+    x: Math.round(sw / 2 - SETTINGS_W / 2),
+    y: Math.round(sh / 2 - SETTINGS_H / 2),
     frame: false,
     transparent: true,
     backgroundColor: null,
@@ -222,12 +233,22 @@ function createSettingsWindow() {
 }
 
 function createTray() {
-  // Load tray icon from assets — white circle pill, visible in Windows system tray
+  // Load tray icon from assets — glowing orb logo
   let icon;
   try {
-    icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray-icon.png'));
+    const logoPath = path.join(__dirname, 'assets', 'logo.png');
+    icon = nativeImage.createFromPath(logoPath);
+    if (icon && !icon.isEmpty()) {
+      icon = icon.resize({ width: 32, height: 32, quality: 'best' });
+    } else {
+      icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray-icon.png'));
+    }
   } catch (e) {
-    icon = nativeImage.createEmpty();
+    try {
+      icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray-icon.png'));
+    } catch (err) {
+      icon = nativeImage.createEmpty();
+    }
   }
 
   tray = new Tray(icon);
@@ -334,6 +355,16 @@ ipcMain.on('media-control', (event, action) => {
   mediaController.send(action);
 });
 
+// Hardware Volume Toggle (Mute/Unmute)
+ipcMain.on('volume-toggle', () => {
+  mediaController.send('mute');
+});
+
+// Open Windows System Sound Settings
+ipcMain.on('open-sound-settings', () => {
+  exec('explorer.exe ms-settings:sound');
+});
+
 const { shell } = require('electron');
 const { exec } = require('child_process');
 
@@ -395,6 +426,35 @@ function startServices() {
       islandWindow.webContents.send('network-update', data);
     }
   });
+
+  // System Stats (CPU + RAM) — pending feature now wired up
+  let statsInterval = null;
+  async function pollStats() {
+    try {
+      const [cpu, mem] = await Promise.all([
+        si.currentLoad(),
+        si.mem(),
+      ]);
+      const data = {
+        cpu: Math.round(cpu.currentLoad),
+        ram: Math.round((mem.active / mem.total) * 100),
+      };
+      if (islandWindow && !islandWindow.isDestroyed()) {
+        islandWindow.webContents.send('stats-update', data);
+      }
+    } catch (e) {
+      // systeminformation may not have data immediately on first boot
+    }
+  }
+  pollStats();
+  statsInterval = setInterval(pollStats, 3000);
+
+  // Cleanup on island window close
+  if (islandWindow) {
+    islandWindow.once('closed', () => {
+      if (statsInterval) clearInterval(statsInterval);
+    });
+  }
 }
 
 // ─── App Lifecycle ──────────────────────────────────────────────────────────
@@ -411,4 +471,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('before-quit', () => {
+  try { mediaService.stop(); } catch (_) {}
+  try { batteryService.stop(); } catch (_) {}
+  try { networkService.stop(); } catch (_) {}
+  try { mediaController.stop(); } catch (_) {}
 });

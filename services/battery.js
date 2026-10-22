@@ -20,13 +20,18 @@ async function poll(callback) {
     }
   } catch (e) {
     // Desktop PC with no battery
-    callback({ hasBattery: false, percent: 100, isCharging: false, acConnected: true });
+    const fallback = { hasBattery: false, percent: 100, isCharging: false, acConnected: true };
+    const json = JSON.stringify(fallback);
+    if (json !== lastData) {
+      lastData = json;
+      callback(fallback);
+    }
   }
 }
 
 function start(callback) {
   poll(callback);
-  intervalId = setInterval(() => poll(callback), 10000); // every 10s
+  intervalId = setInterval(() => poll(callback), 1500); // 1.5s for fast charger connect/disconnect response
 }
 
 function stop() {

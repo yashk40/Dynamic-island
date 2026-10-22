@@ -131,7 +131,8 @@ npm run autostart:disable
 ```
 Dynamic-island/
 ├── assets/
-│   └── tray-icon.png          # System tray icon
+│   ├── logo.png               # App icon & dynamic glowing orb logo
+│   └── tray-icon.png          # System tray icon (32x32)
 ├── renderer/
 │   ├── index.html             # Island canvas & UI states
 │   ├── island.css             # Glassmorphism design & animations

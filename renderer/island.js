@@ -36,6 +36,21 @@ const APPLE_EASE = 'power4.out';
 const MORPH_DURATION = 0.55;
 const CONTENT_DURATION = 0.35;
 
+// ─── Appearance Settings (declared early so scheduleAutoCollapse can read collapse delay) ───
+let appSettings = {
+  opacity: 65, blur: 24, saturation: 180, brightness: 88,
+  tint: '10,10,12', tintOpacity: 0,
+  border: 12, shadow: 50, glow: 12, collapse: 1.5,
+};
+
+// Restore saved settings immediately from localStorage if present
+try {
+  const cachedSettings = localStorage.getItem('dynamic_island_settings');
+  if (cachedSettings) {
+    Object.assign(appSettings, JSON.parse(cachedSettings));
+  }
+} catch (e) {}
+
 // ─── State ───────────────────────────────────────────────────
 let currentActivity = 'compact';
 let hovering = false;
@@ -70,19 +85,24 @@ function fmtTime(s) {
 }
 
 // ─── Activity resolver ───────────────────────────────────────
+// Cycle index for hovering without active media (network → stats → quick)
+let hoverCycleIdx = 0;
+const HOVER_CYCLE = ['quick', 'network', 'stats'];
+
 function resolveActivity() {
   if (lockedActivity && hovering) return lockedActivity;
 
-  const isPlaying = (mediaData.status === 'Playing');
+  const hasMedia = Boolean(mediaData && mediaData.title && mediaData.title.trim() !== '' && mediaData.status !== 'None');
+  const isPlaying = (mediaData && mediaData.status === 'Playing');
 
   if (hovering) {
     if (timerActive && timerRunning) return 'timer';
-    // When music is playing, expand to music card
-    if (isPlaying) return 'music';
+    // When music is active (playing or paused), expand to music card!
+    if (hasMedia) return 'music';
     // If battery is low, show battery
     if (batteryData.hasBattery && batteryData.percent < 20 && !batteryData.isCharging) return 'battery';
-    // Normal hover: Show Quick Actions Hub (YouTube, Snip, Calc, Files, Lock, Power)
-    return 'quick';
+    // Normal hover: cycle through Quick Actions Hub → Network → Stats
+    return HOVER_CYCLE[hoverCycleIdx % HOVER_CYCLE.length];
   }
 
   if (timerActive && timerRunning) return 'timer';
@@ -161,7 +181,8 @@ function showActivity(name, animate = true) {
   // Get target size
   const targetSize = SIZE[name] || SIZE.compact;
   const isPlaying = mediaData.status === 'Playing';
-  const islandClasses = `island ${isCompact ? 'compact ' + name : 'expanded ' + name} ${isPlaying ? 'playing' : ''}`;
+  const dockClass = appSettings.dockMode ? `dock-${appSettings.dockMode}` : 'dock-stealth';
+  const islandClasses = `island ${isCompact ? 'compact ' + name : 'expanded ' + name} ${isPlaying ? 'playing' : ''} ${dockClass} ${hovering ? 'hovered' : ''}`;
 
   // Report active pixel bounds to main process for OS cursor tracking
   if (bridge && bridge.reportBounds) {
@@ -246,6 +267,7 @@ function collapseIsland() {
   togglePowerConfirm(false);
   lockedActivity = null;
   hovering = false;
+  island.classList.remove('hovered');
   update();
 }
 
@@ -318,6 +340,15 @@ document.addEventListener('click', (e) => {
 
 // Click on island shell
 island.addEventListener('click', (e) => {
+  // If clicking on notch-handle, cycle through activities (Quick Hub -> Network -> Stats)
+  if (e.target.closest('.notch-handle')) {
+    cancelCollapseTimer();
+    hoverCycleIdx++;
+    lockedActivity = HOVER_CYCLE[hoverCycleIdx % HOVER_CYCLE.length];
+    showActivity(lockedActivity);
+    return;
+  }
+
   // If clicking on interactive controls (buttons, scrubber, tiles), cancel collapse timer and stay open
   if (e.target.closest('button') || e.target.closest('.ctrl-btn') || e.target.closest('#scrub-track') || e.target.closest('.timer-btn') || e.target.closest('.quick-tile') || e.target.closest('.power-btn')) {
     cancelCollapseTimer();
@@ -328,6 +359,7 @@ island.addEventListener('click', (e) => {
   if (isCurrentlyCompact) {
     cancelCollapseTimer();
     hovering = true;
+    island.classList.add('hovered');
     let act = resolveActivity();
     if (act === 'compact' || act === 'compactMedia') {
       act = (mediaData.status === 'Playing') ? 'music' : 'quick';
@@ -338,6 +370,17 @@ island.addEventListener('click', (e) => {
     // Clicking the background of an expanded island collapses it cleanly!
     collapseIsland();
   }
+});
+
+// Right click (contextmenu) on island cycles activities on demand!
+island.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  cancelCollapseTimer();
+  hovering = true;
+  island.classList.add('hovered');
+  hoverCycleIdx++;
+  lockedActivity = HOVER_CYCLE[hoverCycleIdx % HOVER_CYCLE.length];
+  showActivity(lockedActivity);
 });
 
 // Safety watchdog: ensures island never remains stuck open
@@ -480,8 +523,16 @@ function updateMusicUI(data) {
   // Only trigger layout update when PLAYING state changes (e.g., music started or stopped)
   if (lastMediaPlaying !== playing) {
     lastMediaPlaying = playing;
-    if (!hovering && !lockedActivity) {
-      update();
+    if (!playing) {
+      // Video stopped or paused: collapse back to small compact pill!
+      if (!hovering) {
+        lockedActivity = null;
+        collapseIsland();
+      }
+    } else {
+      if (!hovering && !lockedActivity) {
+        update();
+      }
     }
   }
 }
@@ -522,20 +573,29 @@ function updateBatteryUI(data) {
   island.classList.toggle('charging', data.isCharging);
   island.classList.toggle('low-battery', pct < 20 && !data.isCharging);
 
-  // Only trigger battery alert toast when state TRANSITIONS (e.g. charger newly plugged in),
-  // NEVER repeatedly trigger every poll interval!
+  // Trigger battery alert toast when charger connects OR disconnects!
   if (data.hasBattery) {
-    const isNewPlugIn = lastKnownCharging === false && data.isCharging === true;
-    const isNewLow = pct < 20 && !data.isCharging && !lastKnownLow;
+    const isCurrentlyCharging = Boolean(data.isCharging || data.acConnected);
 
-    if ((isNewPlugIn || isNewLow) && !hovering && !lockedActivity) {
-      showActivity('battery');
-      setTimeout(() => {
-        if (!hovering && !lockedActivity) showActivity('compact');
-      }, 4000);
+    if (lastKnownCharging !== null && lastKnownCharging !== isCurrentlyCharging) {
+      // Charger state changed: plugged in OR unplugged!
+      if (!hovering && !lockedActivity) {
+        showActivity('battery');
+        setTimeout(() => {
+          if (!hovering && !lockedActivity) update();
+        }, 3200);
+      }
+    } else {
+      const isNewLow = pct < 20 && !isCurrentlyCharging && !lastKnownLow;
+      if (isNewLow && !hovering && !lockedActivity) {
+        showActivity('battery');
+        setTimeout(() => {
+          if (!hovering && !lockedActivity) update();
+        }, 3500);
+      }
     }
 
-    lastKnownCharging = data.isCharging;
+    lastKnownCharging = isCurrentlyCharging;
     lastKnownLow = pct < 20;
   }
 }
@@ -546,11 +606,29 @@ bridge.onBattery((data) => {
 });
 
 // ─── NETWORK ─────────────────────────────────────────────────
-bridge.onNetwork((data) => {
-  networkData = data;
-  document.getElementById('net-download').textContent = data.download;
-  document.getElementById('net-upload').textContent   = data.upload;
-});
+if (bridge && bridge.onNetwork) {
+  bridge.onNetwork((data) => {
+    networkData = data;
+    const downEl = document.getElementById('net-download');
+    const upEl   = document.getElementById('net-upload');
+    if (downEl) downEl.textContent = data.download || '0.0 KB/s';
+    if (upEl)   upEl.textContent   = data.upload   || '0.0 KB/s';
+  });
+}
+
+// ─── SYSTEM STATS ─────────────────────────────────────────────
+if (bridge && bridge.onStats) {
+  bridge.onStats((data) => {
+    const cpuFill = document.getElementById('cpu-fill');
+    const cpuVal  = document.getElementById('cpu-value');
+    const ramFill = document.getElementById('ram-fill');
+    const ramVal  = document.getElementById('ram-value');
+    if (cpuFill) cpuFill.style.width = `${Math.min(100, Math.max(0, data.cpu))}%`;
+    if (cpuVal)  cpuVal.textContent  = `${data.cpu}%`;
+    if (ramFill) ramFill.style.width = `${Math.min(100, Math.max(0, data.ram))}%`;
+    if (ramVal)  ramVal.textContent  = `${data.ram}%`;
+  });
+}
 
 // ─── TIMER ───────────────────────────────────────────────────
 const TIMER_CIRCUMFERENCE = 2 * Math.PI * 34;
@@ -584,6 +662,8 @@ window.timerControl = function (action) {
     if (btn) btn.textContent = timerRunning ? 'Pause' : 'Resume';
 
     if (timerRunning) {
+      // Bug fix: clear any existing interval before creating a new one to prevent stacking
+      clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         timerSeconds = Math.max(0, timerSeconds - 1);
         updateTimerDisplay();
@@ -625,9 +705,9 @@ function showNotification(icon, title, body) {
   if (notifTimeout) clearTimeout(notifTimeout);
   notifTimeout = setTimeout(() => {
     if (currentActivity === 'notification' && !lockedActivity) {
-      showActivity('compact');
+      update();
     }
-  }, 4000);
+  }, 3500);
 }
 
 // Demo notification
@@ -639,12 +719,7 @@ setTimeout(() => {
 showActivity('compact', false);
 bridge.setIgnoreMouse(true);
 
-// ─── Appearance Settings (from Settings window) ───────────────
-let appSettings = {
-  opacity: 65, blur: 24, saturation: 180, brightness: 88,
-  tint: '10,10,12', tintOpacity: 0,
-  border: 12, shadow: 50, glow: 12, collapse: 1.5,
-};
+// ─── Appearance Settings (declarations moved to top — see GSAP defaults section) ───
 
 function applyAppSettings(s) {
   appSettings = Object.assign({}, appSettings, s);
@@ -664,10 +739,20 @@ function applyAppSettings(s) {
   // Apply to island
   island.style.background = bg;
   island.style.border = `0.5px solid rgba(255, 255, 255, ${borderA})`;
-  island.style.boxShadow = `0 8px 32px rgba(0, 0, 0, ${shadowA}), inset 0 1px 0 rgba(255, 255, 255, ${glowA})`;
+  const sNum = parseFloat(shadowA);
+  const s1 = (sNum * 0.55).toFixed(3);
+  const s2 = (sNum * 0.35).toFixed(3);
+  island.style.boxShadow = sNum > 0
+    ? `0 14px 28px -6px rgba(0, 0, 0, ${s1}), 0 4px 10px -2px rgba(0, 0, 0, ${s2}), inset 0 1px 0 rgba(255, 255, 255, ${glowA})`
+    : `inset 0 1px 0 rgba(255, 255, 255, ${glowA})`;
 
   // Also update CSS vars for override consistency
   document.documentElement.style.setProperty('--island-bg', bg);
+
+  // Apply dock mode class
+  const dockClass = appSettings.dockMode || 'stealth';
+  ['dock-stealth', 'dock-corner', 'dock-autohide', 'dock-center'].forEach(cls => island.classList.remove(cls));
+  island.classList.add(`dock-${dockClass}`);
 }
 
 // Listen for settings updates from main process
@@ -678,15 +763,7 @@ bridge.onSettings(function(s) {
   } catch (e) {}
 });
 
-// Restore saved settings immediately from localStorage if present
-try {
-  const cachedSettings = localStorage.getItem('dynamic_island_settings');
-  if (cachedSettings) {
-    Object.assign(appSettings, JSON.parse(cachedSettings));
-  }
-} catch (e) {}
-
-// Apply settings immediately
+// Apply settings immediately on load (localStorage already loaded at top)
 applyAppSettings(appSettings);
 
 // ─── Media controls (IPC to Windows hardware media keys) ────
@@ -697,6 +774,9 @@ window.mediaControl = function (action) {
     island.classList.toggle('playing', isNowPlaying);
     showCompactMusic(isNowPlaying);
     mediaData.status = isNowPlaying ? 'Playing' : 'Paused';
+    if (!isNowPlaying) {
+      scheduleAutoCollapse(1000);
+    }
   } else if (action === 'forward') {
     musicElapsed = Math.min(musicTotal, musicElapsed + 10);
     updateMusicTimes();
@@ -710,19 +790,54 @@ window.mediaControl = function (action) {
   }
 };
 
-// Interactive scrubber seeking
+// Interactive scrubber seeking — Bug fix: now sends actual computed position instead of hardcoded 'forward'
 window.seekScrubber = function (e) {
   const track = document.getElementById('scrub-track');
-  if (!track) return;
+  if (!track || musicTotal <= 0) return;
   const rect = track.getBoundingClientRect();
   const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
   const pct = clickX / rect.width;
-  musicElapsed = Math.round(pct * musicTotal);
+  const newPos = Math.round(pct * musicTotal);
+  const delta = newPos - musicElapsed;
+  musicElapsed = newPos;
   updateMusicTimes();
 
-  // Trigger media seek
+  // Send relative seek — positive = forward, negative = rewind
   if (bridge && bridge.mediaControl) {
-    bridge.mediaControl('forward');
+    bridge.mediaControl(delta >= 0 ? 'forward' : 'rewind');
+  }
+};
+
+// ─── Volume Toggle (Mute / Unmute) & Sound Settings ───────────
+let isMuted = false;
+
+window.toggleVolume = function (e) {
+  if (e) e.stopPropagation();
+  cancelCollapseTimer();
+  isMuted = !isMuted;
+
+  const onIcon = document.querySelector('.vol-icon-on');
+  const muteIcon = document.querySelector('.vol-icon-muted');
+  if (onIcon && muteIcon) {
+    onIcon.style.display = isMuted ? 'none' : 'block';
+    muteIcon.style.display = isMuted ? 'block' : 'none';
+  }
+
+  const speakerBtn = document.getElementById('speaker-icon');
+  if (speakerBtn) {
+    gsap.fromTo(speakerBtn, { scale: 0.8 }, { scale: 1, duration: 0.2, ease: 'back.out(2)' });
+  }
+
+  if (bridge && bridge.toggleMute) {
+    bridge.toggleMute();
+  }
+};
+
+window.openSoundSettings = function (e) {
+  if (e) e.stopPropagation();
+  cancelCollapseTimer();
+  if (bridge && bridge.openSoundSettings) {
+    bridge.openSoundSettings();
   }
 };
 

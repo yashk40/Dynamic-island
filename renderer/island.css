@@ -57,9 +57,12 @@ body {
   isolation: isolate;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Crisp glass border & depth shadow */
+  /* Crisp glass border & depth shadow (smooth Apple-style multi-layer curve) */
   border: 0.5px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 14px 28px -6px rgba(0, 0, 0, 0.28),
+    0 4px 10px -2px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .island::before {
@@ -657,11 +660,11 @@ body {
 .quick-expanded {
   width: 100%;
   height: 100%;
-  padding: 6px 14px 8px 14px;
+  padding: 6px 18px 10px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 /* Authentic Top Notch Indicator Pill Handle */
@@ -687,13 +690,13 @@ body {
   justify-content: space-between;
   width: 100%;
   padding: 0 4px;
+  margin-bottom: 4px;
 }
 
 .quick-tile {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   background: transparent;
   border: none;
   padding: 0;
@@ -706,11 +709,11 @@ body {
   transform: scale(0.92);
 }
 
-/* Base Apple App Squircle */
+/* Base Apple App Squircle - Enlarged for rich, premium look */
 .apple-app-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -791,19 +794,9 @@ body {
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.55);
 }
 
-/* Labels below icons */
+/* Labels below icons (hidden for clean dock look) */
 .quick-label {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.88);
-  letter-spacing: -0.1px;
-  text-align: center;
-  transition: color 0.15s ease, transform 0.15s ease;
-}
-
-.quick-tile:hover .quick-label {
-  color: #ffffff;
+  display: none !important;
 }
 
 /* Power Confirmation Panel */
@@ -1025,8 +1018,12 @@ body {
 
 /* ─── SYSTEM STATS ────────────────────────────────────────────── */
 .island.stats {
-  width: 240px;
-  height: 80px;
+  width: 250px;
+  height: 84px;
+}
+
+.stats-expanded {
+  padding: 12px 18px;
 }
 
 .stats-content {
@@ -1038,23 +1035,29 @@ body {
 
 .stat-item {
   display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.stat-header {
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
 }
 
 .stat-label {
   font-family: 'Inter', sans-serif;
   font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 30px;
+  letter-spacing: 0.6px;
 }
 
 .stat-bar {
-  flex: 1;
-  height: 4px;
+  width: 100%;
+  height: 5px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   overflow: hidden;
@@ -1063,7 +1066,8 @@ body {
 .stat-fill {
   height: 100%;
   border-radius: 999px;
-  transition: width 1s ease;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cpu-fill {
@@ -1076,10 +1080,116 @@ body {
 
 .stat-value {
   font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #fff;
-  width: 32px;
-  text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* ─── NETWORK MONITOR ────────────────────────────────────────── */
+.island.network {
+  width: 240px;
+  height: 84px;
+}
+
+.network-expanded {
+  padding: 12px 18px;
+}
+
+.network-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+}
+
+.net-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.net-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.down-icon {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+  border: 1px solid rgba(52, 199, 89, 0.25);
+}
+
+.up-icon {
+  background: rgba(10, 132, 255, 0.15);
+  color: #0a84ff;
+  border: 1px solid rgba(10, 132, 255, 0.25);
+}
+
+.net-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.net-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.net-label {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.8px;
+}
+
+.net-speed {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.net-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ─── DOCK MODES ────────────────────────────────────────────── */
+/* Stealth Top Notch Mode: flushes with top edge seamlessly */
+.island.dock-stealth.compact:not(.hovered):not(.playing) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Auto-Hide Mode: retreats upward when idle */
+.island.dock-autohide.compact:not(.hovered):not(.playing) {
+  transform: translate3d(-50%, -28px, 0);
+  opacity: 0.45;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.island.dock-autohide.compact:hover,
+.island.dock-autohide.hovered {
+  transform: translate3d(-50%, 0, 0) !important;
+  opacity: 1 !important;
+}
+
+/* Corner Capsule Mode: tucks gracefully to top-right of canvas */
+.island.dock-corner.compact:not(.hovered):not(.playing) {
+  left: calc(100% - 75px);
+  transform: translate3d(-50%, 0, 0);
+}
+
